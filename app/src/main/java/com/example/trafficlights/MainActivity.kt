@@ -1,5 +1,6 @@
 package com.example.trafficlights
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -13,5 +14,9 @@ class MainActivity : AppCompatActivity() {
 
     public fun clickOnImage (view: View) {
         Toast.makeText(this, "Тут будут дальнейшие действия после выбора проблемы", Toast.LENGTH_SHORT).show()
+        val intent  = Intent(this, MainActivity2::class.java).apply {
+            putExtra("ProblemId", "Какая проблема была выбрана")
+        }
+        startActivity(intent)
     }
 }

@@ -12,11 +12,11 @@ import retrofit2.Callback
 import retrofit2.Response
 
 
-class MainActivity : AppCompatActivity() {
+class RequestActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.request_activity)
     }
 
     public fun clickOnImage(view: View) {
@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         val call = apiService.sendTicket(3, "414")
         val callTicket = apiService.checkToken("EA82E0E0gdfg04117C8A36F2EE266D7B4")
 
-        call?.enqueue(object : Callback<TicketResponse?> {
+        call.enqueue(object : Callback<TicketResponse?> {
             override fun onResponse(call: Call<TicketResponse?>, response: Response<TicketResponse?>) {
                 Log.d("request", response.message())
                 val ticketResponse: TicketResponse = response.body()!!
@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        callTicket?.enqueue(object : Callback<TokenResponse> {
+        callTicket.enqueue(object : Callback<TokenResponse> {
             override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
                 Log.d("TicketResponse", response.message())
                 val tokenResponse: TokenResponse = response.body()!!

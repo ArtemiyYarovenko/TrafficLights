@@ -16,7 +16,7 @@ class RequestActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.request_activity)
+        setContentView(R.layout.activity_main)
     }
 
     public fun clickOnImage(view: View) {

@@ -118,7 +118,8 @@ class QrCodeActivity : AppCompatActivity() {
                 val handler = Handler(Looper.getMainLooper())
                 handler.post(Runnable {textResult.text = code.displayValue  })
                 handler.post(Runnable { cameraSource.stop() })
-
+                TODO("После считывания qr-кода отправить запрос на сервер," +
+                        "получить токен и включать бекграунд процесс поллинга по этому токену")
             } else {
 //                textResult.text = ""
             }

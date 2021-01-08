@@ -13,7 +13,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     public fun clickOnImage (view: View) {
-        Toast.makeText(this, "Тут будут дальнейшие действия после выбора проблемы", Toast.LENGTH_SHORT).show()
         val intent  = Intent(this, QrCodeActivity::class.java).apply {
             putExtra("ProblemId", "Какая проблема была выбрана")
         }

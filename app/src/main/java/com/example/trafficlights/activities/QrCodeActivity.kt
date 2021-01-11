@@ -1,4 +1,4 @@
-package com.example.trafficlights
+package com.example.trafficlights.activities
 
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.isNotEmpty
+import com.example.trafficlights.R
 import com.google.android.gms.vision.CameraSource
 import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode

@@ -1,9 +1,10 @@
-package com.example.trafficlights
+package com.example.trafficlights.activities
 
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.example.trafficlights.R
 import com.example.trafficlights.`object`.TicketResponse
 import com.example.trafficlights.`object`.TokenResponse
 import com.example.trafficlights.api.ApiService

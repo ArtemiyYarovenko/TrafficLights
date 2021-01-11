@@ -1,10 +1,10 @@
-package com.example.trafficlights
+package com.example.trafficlights.activities
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
+import com.example.trafficlights.R
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
 
     public fun clickOnImage (view: View) {
         val intent  = Intent(this, QrCodeActivity::class.java).apply {
-            putExtra("ProblemId", "Какая проблема была выбрана")
+            putExtra("ProblemId", "Какая проблема была выбрана (id)")
         }
         startActivity(intent)
     }

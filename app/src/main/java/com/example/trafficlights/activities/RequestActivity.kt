@@ -25,6 +25,7 @@ class RequestActivity : AppCompatActivity() {
         val call = apiService.sendTicket(3, "414")
         val callTicket = apiService.checkToken("EA82E0E0gdfg04117C8A36F2EE266D7B4")
 
+
         call.enqueue(object : Callback<TicketResponse?> {
             override fun onResponse(call: Call<TicketResponse?>, response: Response<TicketResponse?>) {
                 Log.d("request", response.message())

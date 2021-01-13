@@ -5,6 +5,6 @@ import com.google.gson.annotations.SerializedName
 data class TicketResponse (
     @SerializedName("error")
     val error: String?,
-    @SerializedName("token")
+    @SerializedName("message")
     val token : String?
         )

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.example.trafficlights.`object`.TicketBody
 import com.example.trafficlights.R
 import com.example.trafficlights.`object`.TicketResponse
 import com.example.trafficlights.`object`.TokenResponse
@@ -22,29 +23,32 @@ class RequestActivity : AppCompatActivity() {
 
     public fun clickOnImage(view: View) {
         val apiService = ApiService.create()
-        val call = apiService.sendTicket(3, "414")
-        val callTicket = apiService.checkToken("EA82E0E0gdfg04117C8A36F2EE266D7B4")
+        val ticketBody = TicketBody(117, "23т")
+        val call = apiService.sendTicket(ticketBody)
+        val callTicket = apiService.checkToken("4D9B081C1C5F44743EB38E9FC6BD4E4B")
 
-        call.enqueue(object : Callback<TicketResponse?> {
-            override fun onResponse(call: Call<TicketResponse?>, response: Response<TicketResponse?>) {
-                Log.d("request", response.message())
-                val ticketResponse: TicketResponse = response.body()!!
-            }
+                 call.enqueue(object : Callback<TicketResponse?> {
+                   override fun onResponse(call: Call<TicketResponse?>, response: Response<TicketResponse?>) {
+                       Log.d("request", response.message())
+                       val ticketResponse: TicketResponse = response.body()!!
+                       Log.d("request", ticketResponse.toString())
+                   }
 
-            override fun onFailure(call: Call<TicketResponse?>, t: Throwable) {
-                Log.d("request", t.message)
-            }
-        })
+                   override fun onFailure(call: Call<TicketResponse?>, t: Throwable) {
+                       Log.d("request", t.message)
+                   }
+               })
 
-        callTicket.enqueue(object : Callback<TokenResponse> {
-            override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
-                Log.d("TicketResponse", response.message())
-                val tokenResponse: TokenResponse = response.body()!!
-            }
+/*             callTicket.enqueue(object : Callback<TokenResponse> {
+                   override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
+                       Log.d("TicketResponse", response.message())
+                       val tokenResponse: TokenResponse = response.body()!!
+                       Log.d("request", tokenResponse.toString())
+                   }
 
-            override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
-                Log.d("TicketResponse", t.message)
-            }
-        })
+                   override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
+                       Log.d("TicketResponse", t.message)
+                   }
+               }) */
     }
 }

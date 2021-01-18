@@ -57,14 +57,13 @@ interface ApiService {
                     val ticketResponse: TicketResponse = response.body()!!
                     Log.d("api", ticketResponse.toString())
 
-                    if (ticketResponse.token!=null){
-                        val token = ticketResponse.token!!
+                    if (ticketResponse.token != null){
+                        val token = ticketResponse.token
                         val tokenWorkPeriodicRequest = PeriodicWorkRequestBuilder<PollingWorker>(
                             15, TimeUnit.MINUTES)
                             .addTag(token)
                             .setInputData(workDataOf("Token" to token))
                             .build()
-                        8
 
                         WorkManager.getInstance()
                             .enqueue(tokenWorkPeriodicRequest)

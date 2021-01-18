@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // генерирование уникального индентификатора (если такого нет)
+        // генерирование уникального индентификатора пользователя (если такого нет)
         // или получение уже сгенерированного из хранилища
         val sharedPreferences = getSharedPreferences("TrafficLights", MODE_PRIVATE)
         val editor: SharedPreferences.Editor = sharedPreferences.edit()
@@ -53,8 +53,8 @@ class MainActivity : AppCompatActivity() {
         }
         if (requestStatus) {
             Toast.makeText(this, "Ваша заявка успешно отправлена", Toast.LENGTH_SHORT).show()
-            TODO("Сюда по хорошему пихнуть что-то типа стикера с указанием токена заявки" +
-                    "и вообще чтобы выглядело красиво - солидно")
+            /* "Сюда по хорошему пихнуть что-то типа стикера с указанием токена заявки" +
+                    "и вообще чтобы выглядело красиво - солидно" */
         } else {
             Toast.makeText(this, "Упс! Что-то пошло не так :(", Toast.LENGTH_SHORT).show()
         }

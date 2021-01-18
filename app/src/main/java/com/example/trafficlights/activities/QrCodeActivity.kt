@@ -121,7 +121,7 @@ class QrCodeActivity : AppCompatActivity() {
             if (detections != null && detections.detectedItems.isNotEmpty()) {
                 val qrCodes: SparseArray<Barcode> = detections.detectedItems
                 val code = qrCodes.valueAt(0)
-                //Toast.makeText(this@MainActivity, code.displayValue, Toast.LENGTH_LONG)
+                //Toast.makeText(this@BackgroundActivity, code.displayValue, Toast.LENGTH_LONG)
                 val handler = Handler(Looper.getMainLooper())
                 handler.post(Runnable {textResult.text = "QR-код успешно отсканирован"  })
                 handler.post(Runnable { cameraSource.stop() })

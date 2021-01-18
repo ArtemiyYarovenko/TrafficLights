@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.trafficlights.`object`.TicketBody
 import com.example.trafficlights.R
 import com.example.trafficlights.`object`.TicketResponse
-import com.example.trafficlights.`object`.TokenResponse
 import com.example.trafficlights.api.ApiService
 import retrofit2.Call
 import retrofit2.Callback
@@ -21,7 +20,7 @@ class RequestActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 
-    public fun clickOnImage(view: View) {
+/*    public fun clickOnImage(view: View) {
         val apiService = ApiService.create()
         val ticketBody = TicketBody(117, "23т")
         val call = apiService.sendTicket(ticketBody)
@@ -50,5 +49,5 @@ class RequestActivity : AppCompatActivity() {
                        Log.d("TicketResponse", t.message)
                    }
                }) */
-    }
+    }*/
 }

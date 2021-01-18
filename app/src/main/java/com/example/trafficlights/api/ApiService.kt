@@ -1,9 +1,13 @@
 package com.example.trafficlights.api
 
 import android.util.Log
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.example.trafficlights.`object`.TicketBody
 import com.example.trafficlights.`object`.TicketResponse
 import com.example.trafficlights.`object`.TokenResponse
+import com.example.trafficlights.background.PollingWorker
 import com.google.gson.GsonBuilder
 import retrofit2.Call
 import retrofit2.Callback
@@ -14,6 +18,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
+import java.util.concurrent.TimeUnit
 
 
 interface ApiService {
@@ -51,6 +56,19 @@ interface ApiService {
                     Log.d("api", response.message())
                     val ticketResponse: TicketResponse = response.body()!!
                     Log.d("api", ticketResponse.toString())
+
+                    if (ticketResponse.token!=null){
+                        val token = ticketResponse.token!!
+                        val tokenWorkPeriodicRequest = PeriodicWorkRequestBuilder<PollingWorker>(
+                            15, TimeUnit.MINUTES)
+                            .addTag(token)
+                            .setInputData(workDataOf("Token" to token))
+                            .build()
+                        8
+
+                        WorkManager.getInstance()
+                            .enqueue(tokenWorkPeriodicRequest)
+                    }
                 }
 
                 override fun onFailure(call: Call<TicketResponse>, t: Throwable) {

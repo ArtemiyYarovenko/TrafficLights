@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
         if (sharedPreferences.getString(USER_ID, null) == null) {
             uuid = UUID.randomUUID().toString()
             editor.putString(USER_ID, uuid)
-            editor.commit()
+            editor.apply()
             Log.v(USER_ID, "new generated uuid $uuid")
         } else {
             uuid = sharedPreferences.getString(USER_ID, null)!!
@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK && data != null) {
                 //success
                 data.apply {
-                    requestStatus = getBooleanExtra("requestSuccessful", false)
+                    requestStatus = getBooleanExtra("QR-code scan result", false)
                 }
             } else {
                 //fail
@@ -55,10 +55,12 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Ваша заявка успешно отправлена", Toast.LENGTH_SHORT).show()
             TODO("Сюда по хорошему пихнуть что-то типа стикера с указанием токена заявки" +
                     "и вообще чтобы выглядело красиво - солидно")
+        } else {
+            Toast.makeText(this, "Упс! Что-то пошло не так :(", Toast.LENGTH_SHORT).show()
         }
     }
 
-    public fun clickOnImage(view: View) {
+    public fun clickOnItem(view: View) {
         val intent  = Intent(this, QrCodeActivity::class.java).apply {
             putExtra("ProblemId", "Какая проблема была выбрана (id)")
             putExtra(USER_ID, uuid)

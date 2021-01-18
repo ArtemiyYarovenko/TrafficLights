@@ -126,14 +126,20 @@ class QrCodeActivity : AppCompatActivity() {
                 handler.post(Runnable {textResult.text = "QR-код успешно отсканирован"  })
                 handler.post(Runnable { cameraSource.stop() })
                 val id = code.displayValue.toIntOrNull()
+                val data:Intent?
                 if (id != null) {
                     ApiService.ticketRequest(id, uuid)
-                    val data = Intent().apply {
-                        putExtra("requestSuccessful", true)
+                    data = Intent().apply {
+                        putExtra("QR-code scan result", true)
                     }
-                    setResult(RESULT_OK, data)
-                    finish()
+
+                } else {
+                    data = Intent().apply {
+                        putExtra("QR-code scan result", false)
+                    }
                 }
+                setResult(RESULT_OK, data)
+                finish()
             } else {
 //                textResult.text = ""
             }

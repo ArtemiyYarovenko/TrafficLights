@@ -1,4 +1,4 @@
-package com.example.trafficlights.background
+/* package com.example.trafficlights.background
 
 import android.content.Context
 import androidx.work.Data
@@ -27,4 +27,4 @@ class SyncRequestWorker (appContext: Context, workerParams: WorkerParameters):
     }
 
 
-}
+}*/

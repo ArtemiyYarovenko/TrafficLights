@@ -1,10 +1,13 @@
 package com.example.trafficlights.activities
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.ResultReceiver
 import android.util.SparseArray
 import android.view.SurfaceHolder
 import android.view.View
@@ -14,6 +17,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.isNotEmpty
 import com.example.trafficlights.R
+import com.example.trafficlights.api.ApiService
 import com.google.android.gms.vision.CameraSource
 import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
@@ -23,6 +27,7 @@ import kotlinx.android.synthetic.main.qr_code_activity.*
 
 class QrCodeActivity : AppCompatActivity() {
 
+    private lateinit var uuid: String
     private val requestCodeCameraPermission = 1001
     private lateinit var cameraSource: CameraSource
     private lateinit var detector: BarcodeDetector
@@ -31,8 +36,9 @@ class QrCodeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qr_code_activity)
         cameraSurfaceView.visibility = View.INVISIBLE
+        uuid = intent.getStringExtra(USER_ID)!!
 
-        textResult.text = "hello"
+        textResult.text = getString(R.string.qr_scan_invite)
         if (ContextCompat.checkSelfPermission(
                 this@QrCodeActivity,
                 android.Manifest.permission.CAMERA
@@ -56,7 +62,7 @@ class QrCodeActivity : AppCompatActivity() {
         cameraSource = CameraSource.Builder(this@QrCodeActivity, detector)
             .setAutoFocusEnabled(true)
                 .setRequestedPreviewSize(640, 480)
-            .build()
+                .build()
         cameraSurfaceView.holder.addCallback(surfaceCallBack)
         cameraSurfaceView.visibility = View.VISIBLE
         detector.setProcessor(processor)
@@ -117,10 +123,17 @@ class QrCodeActivity : AppCompatActivity() {
                 val code = qrCodes.valueAt(0)
                 //Toast.makeText(this@MainActivity, code.displayValue, Toast.LENGTH_LONG)
                 val handler = Handler(Looper.getMainLooper())
-                handler.post(Runnable {textResult.text = code.displayValue  })
+                handler.post(Runnable {textResult.text = "QR-код успешно отсканирован"  })
                 handler.post(Runnable { cameraSource.stop() })
-                TODO("После считывания qr-кода отправить запрос на сервер," +
-                        "получить токен и включать бекграунд процесс поллинга по этому токену")
+                val id = code.displayValue.toIntOrNull()
+                if (id != null) {
+                    ApiService.ticketRequest(id, uuid)
+                    val data = Intent().apply {
+                        putExtra("requestSuccessful", true)
+                    }
+                    setResult(RESULT_OK, data)
+                    finish()
+                }
             } else {
 //                textResult.text = ""
             }

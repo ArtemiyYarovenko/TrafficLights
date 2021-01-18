@@ -1,10 +1,13 @@
 package com.example.trafficlights.api
 
+import android.util.Log
 import com.example.trafficlights.`object`.TicketBody
 import com.example.trafficlights.`object`.TicketResponse
 import com.example.trafficlights.`object`.TokenResponse
 import com.google.gson.GsonBuilder
 import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
@@ -37,6 +40,23 @@ interface ApiService {
                 .build()
 
             return retrofit.create(ApiService::class.java)
+        }
+
+        fun ticketRequest (id: Int, uuid: String) {
+            val apiService = create()
+            val ticketBody = TicketBody(id, uuid)
+            val call = apiService.sendTicket(ticketBody)
+            call.enqueue(object : Callback<TicketResponse>{
+                override fun onResponse(call: Call<TicketResponse>, response: Response<TicketResponse>) {
+                    Log.d("api", response.message())
+                    val ticketResponse: TicketResponse = response.body()!!
+                    Log.d("api", ticketResponse.toString())
+                }
+
+                override fun onFailure(call: Call<TicketResponse>, t: Throwable) {
+                    Log.d("api", t.message!!)
+                }
+            })
         }
     }
 

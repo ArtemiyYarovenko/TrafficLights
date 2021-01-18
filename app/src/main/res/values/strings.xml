@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Traffic Lights</string>
     <string name="traffic_light_broken">Не работает светофор?</string>
+    <string name="qr_scan_invite">Отканируйте QR-код на светофоре</string>
 </resources>

@@ -9,31 +9,43 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.trafficlights.R
+import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
 public const val USER_ID = "USER_ID"
+public const val REGISTRATION = "REGISTRATION"
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var uuid: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        // генерирование уникального индентификатора пользователя (если такого нет)
-        // или получение уже сгенерированного из хранилища
+
         val sharedPreferences = getSharedPreferences("TrafficLights", MODE_PRIVATE)
         val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        // генерирование уникального индентификатора пользователя (если такого нет)
+        // или получение уже сгенерированного из хранилища
         if (sharedPreferences.getString(USER_ID, null) == null) {
             uuid = UUID.randomUUID().toString()
             editor.putString(USER_ID, uuid)
             editor.apply()
-            Log.v(USER_ID, "new generated uuid $uuid")
+            Log.d(USER_ID, "new generated uuid $uuid")
         } else {
             uuid = sharedPreferences.getString(USER_ID, null)!!
-            Log.v(USER_ID, "uuid from shared preferences $uuid")
+            Log.d(USER_ID, "uuid from shared preferences $uuid")
         }
+
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        // проверка на регистрацию
+        if (!sharedPreferences.getBoolean(REGISTRATION, false)) {
+            registrationBox.visibility = View.VISIBLE
+        } else {
+            item.visibility = View.VISIBLE
+        }
+
 
 
     }
@@ -60,7 +72,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    public fun clickOnItem(view: View) {
+    public final fun clickOnItem(view: View) {
         val intent  = Intent(this, QrCodeActivity::class.java).apply {
             putExtra("ProblemId", "Какая проблема была выбрана (id)")
             putExtra(USER_ID, uuid)

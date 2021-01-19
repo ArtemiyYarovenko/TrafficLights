@@ -1,13 +1,11 @@
 package com.example.trafficlights.activities
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.ResultReceiver
 import android.util.SparseArray
 import android.view.SurfaceHolder
 import android.view.View
@@ -52,9 +50,13 @@ class QrCodeActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        detector.release()
-        cameraSource.stop()
-        cameraSource.release()
+        if(this::detector.isInitialized){
+           detector.release()
+       }
+        if(this::cameraSource.isInitialized) {
+            cameraSource.stop()
+            cameraSource.release()
+        }
     }
 
     private fun setupControls() {

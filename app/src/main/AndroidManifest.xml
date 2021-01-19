@@ -15,7 +15,9 @@
         android:theme="@style/Theme.TrafficLights">
         <activity
             android:name=".activities.QrCodeActivity"
-            android:noHistory="true">
+            android:noHistory="true"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
         </activity>
         <activity android:name=".activities.RequestActivity"></activity>
         <activity

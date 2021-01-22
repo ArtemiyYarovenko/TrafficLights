@@ -7,7 +7,7 @@ import android.util.Log
 import android.view.View
 import androidx.work.*
 import com.example.trafficlights.R
-import com.example.trafficlights.`object`.TicketResponse
+import com.example.trafficlights.`object`.ApiResponse
 import com.example.trafficlights.api.ApiService
 import com.example.trafficlights.background.PollingWorker
 import retrofit2.Call
@@ -30,10 +30,10 @@ class BackgroundActivity : AppCompatActivity() {
       //  val call = apiService.sendTicket(2, "32141")
         var token: String
 
-        call.enqueue(object : Callback<TicketResponse?> {
-            override fun onResponse(call: Call<TicketResponse?>, response: Response<TicketResponse?>) {
+        call.enqueue(object : Callback<ApiResponse?> {
+            override fun onResponse(call: Call<ApiResponse?>, response: Response<ApiResponse?>) {
                 Log.d("request", response.message())
-                val ticketResponse: TicketResponse = response.body()!!
+                val ticketResponse: ApiResponse = response.body()!!
                 if (ticketResponse.token!=null){
                     token = ticketResponse.token
                     val tokenWorkRequest = OneTimeWorkRequestBuilder<PollingWorker>()
@@ -52,7 +52,7 @@ class BackgroundActivity : AppCompatActivity() {
 
             }
 
-            override fun onFailure(call: Call<TicketResponse?>, t: Throwable) {
+            override fun onFailure(call: Call<ApiResponse?>, t: Throwable) {
                 Log.d("request", t.message)
             }
         })

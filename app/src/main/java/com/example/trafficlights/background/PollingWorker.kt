@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.example.trafficlights.`object`.TokenResponse
+import com.example.trafficlights.`object`.ApiResponse
 import com.example.trafficlights.api.ApiService
 
 class PollingWorker (appContext: Context, workerParams: WorkerParameters):
@@ -21,7 +21,7 @@ class PollingWorker (appContext: Context, workerParams: WorkerParameters):
 
         val response = callTicket.execute()
         Log.d("api", response.message())
-        val tokenResponse: TokenResponse = response.body()!!
+        val tokenResponse: ApiResponse = response.body()!!
         Log.d("api", "Получил респонс")
         if (tokenResponse.message != null) {
             message = tokenResponse.message

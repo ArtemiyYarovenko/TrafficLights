@@ -1,16 +1,8 @@
 package com.example.trafficlights.activities
 
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.example.trafficlights.`object`.TicketBody
 import com.example.trafficlights.R
-import com.example.trafficlights.`object`.TicketResponse
-import com.example.trafficlights.api.ApiService
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 
 class RequestActivity : AppCompatActivity() {
@@ -26,27 +18,27 @@ class RequestActivity : AppCompatActivity() {
         val call = apiService.sendTicket(ticketBody)
         val callTicket = apiService.checkToken("4D9B081C1C5F44743EB38E9FC6BD4E4B")
 
-                 call.enqueue(object : Callback<TicketResponse?> {
-                   override fun onResponse(call: Call<TicketResponse?>, response: Response<TicketResponse?>) {
+                 call.enqueue(object : Callback<ApiResponse?> {
+                   override fun onResponse(call: Call<ApiResponse?>, response: Response<ApiResponse?>) {
                        Log.d("request", response.message())
-                       val ticketResponse: TicketResponse = response.body()!!
+                       val ticketResponse: ApiResponse = response.body()!!
                        Log.d("request", ticketResponse.toString())
                    }
 
-                   override fun onFailure(call: Call<TicketResponse?>, t: Throwable) {
+                   override fun onFailure(call: Call<ApiResponse?>, t: Throwable) {
                        Log.d("request", t.message)
                    }
                })
 
 /*             callTicket.enqueue(object : Callback<TokenResponse> {
                    override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
-                       Log.d("TicketResponse", response.message())
+                       Log.d("ApiResponse", response.message())
                        val tokenResponse: TokenResponse = response.body()!!
                        Log.d("request", tokenResponse.toString())
                    }
 
                    override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
-                       Log.d("TicketResponse", t.message)
+                       Log.d("ApiResponse", t.message)
                    }
                }) */
     }*/

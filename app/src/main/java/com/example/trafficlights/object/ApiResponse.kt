@@ -2,9 +2,9 @@ package com.example.trafficlights.`object`
 
 import com.google.gson.annotations.SerializedName
 
-data class TicketResponse (
+data class ApiResponse (
     @SerializedName("error")
     val error: String?,
     @SerializedName("message")
-    val token : String?
+    val message : String?
         )

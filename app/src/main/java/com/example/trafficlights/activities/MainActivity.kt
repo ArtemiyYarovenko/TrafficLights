@@ -4,19 +4,22 @@ import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.StrictMode
 import android.telephony.PhoneNumberUtils
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.trafficlights.R
+import com.example.trafficlights.`object`.User
+import com.example.trafficlights.api.ApiService
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
+
 
 public const val USER_ID = "USER_ID"
 public const val REGISTRATION = "REGISTRATION"
 public const val SURNAME = "SURNAME"
 public const val NAME = "NAME"
+public const val FATHERNAME = "FATHERNAME"
 public const val PHONENUMBER = "PHONENUMBER"
 
 class MainActivity : AppCompatActivity() {
@@ -24,20 +27,14 @@ class MainActivity : AppCompatActivity() {
     lateinit var uuid: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // грязный хак чтобы использовать интернет в мейн потоке
+        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
 
-        val sharedPreferences = getSharedPreferences("TrafficLights", MODE_PRIVATE)
-        val editor: SharedPreferences.Editor = sharedPreferences.edit()
         // генерирование уникального индентификатора пользователя (если такого нет)
         // или получение уже сгенерированного из хранилища
-        if (sharedPreferences.getString(USER_ID, null) == null) {
-            uuid = UUID.randomUUID().toString()
-            editor.putString(USER_ID, uuid)
-            editor.apply()
-            Log.d(USER_ID, "new generated uuid $uuid")
-        } else {
-            uuid = sharedPreferences.getString(USER_ID, null)!!
-            Log.d(USER_ID, "uuid from shared preferences $uuid")
-        }
+        val sharedPreferences = getSharedPreferences("TrafficLights", AppCompatActivity.MODE_PRIVATE)
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -50,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         //тестовая фигня для сброса регистрации
-        //editor.putBoolean(REGISTRATION, false).apply()
+        editor.putBoolean(REGISTRATION, false).commit()
 
     }
 
@@ -90,6 +87,7 @@ class MainActivity : AppCompatActivity() {
         val editor: SharedPreferences.Editor = sharedPreferences.edit()
         var surnameIsNotEmpty = false
         var nameIsNotEmpty = false
+        var fatherNameIsNotEmpty = false
         var phoneNumberIsNotEmpty = false
         var phoneNumberFormatIsNotCorrect = false
 
@@ -98,8 +96,8 @@ class MainActivity : AppCompatActivity() {
             surnameIsNotEmpty = true
         } else {
             Toast.makeText(this,
-                "Поле фамилии пустое!",
-                Toast.LENGTH_SHORT).show()
+                    "Поле фамилии пустое!",
+                    Toast.LENGTH_SHORT).show()
         }
 
         //обработка поля имени
@@ -107,38 +105,61 @@ class MainActivity : AppCompatActivity() {
             nameIsNotEmpty = true
         } else {
             Toast.makeText(this,
-                "Поле имени пустое!",
-                Toast.LENGTH_SHORT).show()
+                    "Поле имени пустое!",
+                    Toast.LENGTH_SHORT).show()
+        }
+
+        //обработка поля отчества
+        if (editPersonFatherName.text.isNotEmpty()) {
+            fatherNameIsNotEmpty = true
+        } else {
+            Toast.makeText(this,
+                    "Поле отчества пустое!",
+                    Toast.LENGTH_SHORT).show()
         }
 
         //обработка поля номера (на пустотсу и формат)
         if (editTextPhone.text.isNotEmpty()) {
             phoneNumberIsNotEmpty = true
             phoneNumberFormatIsNotCorrect = PhoneNumberUtils.formatNumberToE164(editTextPhone.text.toString(),
-                "RU").isNullOrEmpty()
+                    "RU").isNullOrEmpty()
             if (phoneNumberFormatIsNotCorrect) {
                 Toast.makeText(this,
-                    "Некорректный номер телефона",
-                    Toast.LENGTH_SHORT).show()
+                        "Некорректный номер телефона",
+                        Toast.LENGTH_SHORT).show()
             }
         } else {
             Toast.makeText(this,
-                "Поле номера пустое!",
-                Toast.LENGTH_SHORT).show()
+                    "Поле номера пустое!",
+                    Toast.LENGTH_SHORT).show()
         }
 
+        // все поля заполнены - регистрация прошла
         if (surnameIsNotEmpty && nameIsNotEmpty &&
-            phoneNumberIsNotEmpty && !phoneNumberFormatIsNotCorrect ) {
+            phoneNumberIsNotEmpty && fatherNameIsNotEmpty
+                && !phoneNumberFormatIsNotCorrect ) {
             Toast.makeText(this,
-            "Регистрация успешно проведена",
-            Toast.LENGTH_SHORT).show()
-            editor.putBoolean(REGISTRATION, true)
-            editor.putString(SURNAME, editPersonSurname.text.toString())
-            editor.putString(NAME, editPersonName.text.toString())
-            editor.putString(PHONENUMBER, editTextPhone.text.toString())
-            editor.apply()
-            registrationBox.visibility = View.INVISIBLE
-            item.visibility = View.VISIBLE
+                    "Регистрация успешно проведена",
+                    Toast.LENGTH_SHORT).show()
+            val registration = ApiService.userRequest(user = User(
+                    editPersonSurname.text.toString(),
+                    editPersonName.text.toString(),
+                    editPersonFatherName.text.toString(),
+                    editTextPhone.text.toString()
+            ))
+            var userId: String
+            if (registration.isSuccessful) {
+                val response = registration.body()
+                if (response!!.message != null) {
+                    userId = response.message!!
+                    editor.putBoolean(REGISTRATION, true)
+                    editor.putString(USER_ID, userId)
+                    editor.apply()
+                    registrationBox.visibility = View.INVISIBLE
+                    item.visibility = View.VISIBLE
+                }
+            }
+
         }
 
     }

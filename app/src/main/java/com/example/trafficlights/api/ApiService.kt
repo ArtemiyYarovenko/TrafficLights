@@ -54,9 +54,8 @@ interface ApiService {
             return retrofit.create(ApiService::class.java)
         }
 
-        fun sendTicket (id: Int, uuid: String) {
+        fun sendTicket (ticketBody: TicketBody) {
             val apiService = create()
-            val ticketBody = TicketBody(id, uuid)
             val call = apiService.sendTicket(ticketBody)
             call.enqueue(object : Callback<ApiResponse>{
                 override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {

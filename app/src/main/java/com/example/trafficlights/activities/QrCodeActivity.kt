@@ -15,6 +15,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.isNotEmpty
 import com.example.trafficlights.R
+import com.example.trafficlights.`object`.TicketBody
 import com.example.trafficlights.api.ApiService
 import com.google.android.gms.vision.CameraSource
 import com.google.android.gms.vision.Detector
@@ -25,7 +26,7 @@ import kotlinx.android.synthetic.main.qr_code_activity.*
 
 class QrCodeActivity : AppCompatActivity() {
 
-    private lateinit var uuid: String
+    private lateinit var userId: String
     private val requestCodeCameraPermission = 1001
     private lateinit var cameraSource: CameraSource
     private lateinit var detector: BarcodeDetector
@@ -34,7 +35,7 @@ class QrCodeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qr_code_activity)
         cameraSurfaceView.visibility = View.INVISIBLE
-        uuid = intent.getStringExtra(USER_ID)!!
+        userId = intent.getStringExtra(USER_ID)!!
 
         textResult.text = getString(R.string.qr_scan_invite)
         if (ContextCompat.checkSelfPermission(
@@ -127,10 +128,11 @@ class QrCodeActivity : AppCompatActivity() {
                 val handler = Handler(Looper.getMainLooper())
                 handler.post(Runnable {textResult.text = "QR-код успешно отсканирован"  })
                 handler.post(Runnable { cameraSource.stop() })
-                val id = code.displayValue.toIntOrNull()
-                val data:Intent?
-                if (id != null) {
-                    ApiService.sendTicket(id, uuid)
+                val hashCode = code.displayValue
+                val data:Intent
+                if (hashCode != null) {
+                    val ticketBody = TicketBody(hashCode, userId, null )
+                    ApiService.sendTicket(ticketBody)
                     data = Intent().apply {
                         putExtra("QR-code scan result", true)
                     }

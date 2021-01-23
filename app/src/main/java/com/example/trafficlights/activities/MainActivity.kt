@@ -24,7 +24,7 @@ public const val PHONENUMBER = "PHONENUMBER"
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var uuid: String
+    lateinit var userId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // грязный хак чтобы использовать интернет в мейн потоке
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
             registrationBox.visibility = View.VISIBLE
         } else {
             item.visibility = View.VISIBLE
-            uuid = sharedPreferences.getString(USER_ID, null)!!
+            userId = sharedPreferences.getString(USER_ID, null)!!
         }
 
         //тестовая фигня для сброса регистрации
@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
     public final fun clickOnItem(view: View) {
         val intent  = Intent(this, QrCodeActivity::class.java).apply {
             putExtra("ProblemId", "Какая проблема была выбрана (id)")
-            putExtra(USER_ID, uuid)
+            putExtra(USER_ID, userId)
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivityForResult(intent, 1)
@@ -148,7 +148,7 @@ class MainActivity : AppCompatActivity() {
                     editPersonFatherName.text.toString(),
                     editTextPhone.text.toString()
             ))
-            var userId: String
+
             if (registration.isSuccessful) {
                 val response = registration.body()
                 if (response!!.message != null) {

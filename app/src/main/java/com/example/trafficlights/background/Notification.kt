@@ -6,15 +6,17 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.example.trafficlights.CHANNEL_ID
+import com.example.trafficlights.CHANNEL_NAME
 
 import com.example.trafficlights.activities.MainActivity
+import com.example.trafficlights.notificationId
 
 
-const val CHANNEL_ID = "777"
-class Notification(private val context: Context, private val token: String) {
-    private val CHANNEL_NAME: CharSequence = "Takeit"
-    private val notificationId = 1
+class Notification(private val context: Context, private val token: String, private val status: String) {
+
 
     public fun createNotification() {
         var notificationChannel: NotificationChannel
@@ -35,13 +37,16 @@ class Notification(private val context: Context, private val token: String) {
         //notifications
         val builder = NotificationCompat.Builder(context.applicationContext, CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
-                .setContentTitle("Ваша проблема была устранена")
-                .setContentText("Ваше заявка $token была переведена в статус: Решено")
+                .setContentTitle("Прогресс по вашей заявке!")
+                .setContentText("Статус одной из ваших заявок изменился")
+                .setStyle(NotificationCompat.BigTextStyle()
+                        .bigText("Ваше заявка $token была переведена в статус: $status"))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
-        //show notification
 
+        //show notification
+        Log.d("debug", "Создано уведоомление")
         notificationManager.notify(notificationId, builder.build())
     }
 }

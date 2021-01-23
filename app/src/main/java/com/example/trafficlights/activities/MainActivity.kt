@@ -10,17 +10,11 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.trafficlights.R
+import com.example.trafficlights.REGISTRATION
+import com.example.trafficlights.USER_ID
 import com.example.trafficlights.`object`.User
 import com.example.trafficlights.api.ApiService
 import kotlinx.android.synthetic.main.activity_main.*
-
-
-public const val USER_ID = "USER_ID"
-public const val REGISTRATION = "REGISTRATION"
-public const val SURNAME = "SURNAME"
-public const val NAME = "NAME"
-public const val FATHERNAME = "FATHERNAME"
-public const val PHONENUMBER = "PHONENUMBER"
 
 class MainActivity : AppCompatActivity() {
 

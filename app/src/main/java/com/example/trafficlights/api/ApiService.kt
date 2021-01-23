@@ -36,7 +36,7 @@ interface ApiService {
 
     @GET("/Ticket/Check/")
     fun checkToken(
-        @Query("token") token :String
+        @Query("ticket_id") token :Int
     ) : Call<ApiResponse>
 
     companion object Ticket {
@@ -59,25 +59,26 @@ interface ApiService {
             val call = apiService.sendTicket(ticketBody)
             call.enqueue(object : Callback<ApiResponse>{
                 override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
-                    Log.d("api", response.message())
+                    Log.d("debug", response.message())
                     val apiResponse: ApiResponse = response.body()!!
-                    Log.d("api", apiResponse.toString())
+                    Log.d("debug", apiResponse.toString())
 
                     if (apiResponse.message != null){
                         val token = apiResponse.message
                         val tokenWorkPeriodicRequest = PeriodicWorkRequestBuilder<PollingWorker>(
-                            15, TimeUnit.MINUTES)
+                            15, TimeUnit.MINUTES, 3, TimeUnit.MINUTES)
                             .addTag(token)
-                            .setInputData(workDataOf("Token" to token))
+                            .setInputData(workDataOf("Token" to token.toInt()))
                             .build()
 
                         WorkManager.getInstance()
                             .enqueue(tokenWorkPeriodicRequest)
+                        Log.d("debug", "Запущен поллинг")
                     }
                 }
 
                 override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
-                    Log.d("api", t.message!!)
+                    Log.d("debug", t.message!!)
                 }
             })
         }

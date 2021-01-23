@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.util.SparseArray
 import android.view.SurfaceHolder
 import android.view.View
@@ -15,6 +16,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.isNotEmpty
 import com.example.trafficlights.R
+import com.example.trafficlights.USER_ID
 import com.example.trafficlights.`object`.TicketBody
 import com.example.trafficlights.api.ApiService
 import com.google.android.gms.vision.CameraSource
@@ -124,21 +126,21 @@ class QrCodeActivity : AppCompatActivity() {
             if (detections != null && detections.detectedItems.isNotEmpty()) {
                 val qrCodes: SparseArray<Barcode> = detections.detectedItems
                 val code = qrCodes.valueAt(0)
-                //Toast.makeText(this@BackgroundActivity, code.displayValue, Toast.LENGTH_LONG)
                 val handler = Handler(Looper.getMainLooper())
                 handler.post(Runnable {textResult.text = "QR-код успешно отсканирован"  })
                 handler.post(Runnable { cameraSource.stop() })
                 val hashCode = code.displayValue
+                Log.d("debug", hashCode)
                 val data:Intent
-                if (hashCode != null) {
+                data = if (hashCode != null) {
                     val ticketBody = TicketBody(hashCode, userId, null )
                     ApiService.sendTicket(ticketBody)
-                    data = Intent().apply {
+                    Intent().apply {
                         putExtra("QR-code scan result", true)
                     }
 
                 } else {
-                    data = Intent().apply {
+                    Intent().apply {
                         putExtra("QR-code scan result", false)
                     }
                 }

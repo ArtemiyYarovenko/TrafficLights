@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
             registrationBox.visibility = View.VISIBLE
         } else {
             item.visibility = View.VISIBLE
+            uuid = sharedPreferences.getString(USER_ID, null)!!
         }
 
         //тестовая фигня для сброса регистрации
@@ -152,6 +153,9 @@ class MainActivity : AppCompatActivity() {
                 val response = registration.body()
                 if (response!!.message != null) {
                     userId = response.message!!
+                    Toast.makeText(this,
+                        userId,
+                        Toast.LENGTH_SHORT).show()
                     editor.putBoolean(REGISTRATION, true)
                     editor.putString(USER_ID, userId)
                     editor.apply()

@@ -16,6 +16,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.isNotEmpty
 import com.example.trafficlights.R
+import com.example.trafficlights.REQUEST_CAMERA_CODE_PERMISSION
 import com.example.trafficlights.USER_ID
 import com.example.trafficlights.`object`.TicketBody
 import com.example.trafficlights.api.ApiService
@@ -29,7 +30,6 @@ import kotlinx.android.synthetic.main.qr_code_activity.*
 class QrCodeActivity : AppCompatActivity() {
 
     private lateinit var userId: String
-    private val requestCodeCameraPermission = 1001
     private lateinit var cameraSource: CameraSource
     private lateinit var detector: BarcodeDetector
 
@@ -77,7 +77,7 @@ class QrCodeActivity : AppCompatActivity() {
         ActivityCompat.requestPermissions(
             this@QrCodeActivity,
             arrayOf(android.Manifest.permission.CAMERA),
-            requestCodeCameraPermission
+            REQUEST_CAMERA_CODE_PERMISSION
         )
         cameraSurfaceView.clearFocus()
     }
@@ -88,7 +88,7 @@ class QrCodeActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == requestCodeCameraPermission && grantResults.isNotEmpty()) {
+        if (requestCode == REQUEST_CAMERA_CODE_PERMISSION && grantResults.isNotEmpty()) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 setupControls()
             } else {

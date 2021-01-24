@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="false"
-    tools:context=".activities.RequestActivity">
+    tools:context=".activities.MainActivity">
 
 
     <view
@@ -29,7 +29,7 @@
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:contentDescription="Светофор"

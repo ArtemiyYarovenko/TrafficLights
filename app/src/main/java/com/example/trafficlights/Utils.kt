@@ -17,6 +17,11 @@ const val RECEIVED = "Поступила"
 const val IN_PROGRESS = "В обработке"
 const val DONE = "Выполнена"
 const val CANCELLED = "Отменена"
+
+const val REQUEST_IMAGE_CAPTURE = 14
+const val REQUEST_CAMERA_CODE_PERMISSION = 1001
+const val REQUEST_WRITE_EXTERNAL_STORAGE = 1002
+
 class Utils {
 
 }

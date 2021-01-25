@@ -7,7 +7,10 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.os.StrictMode
 import android.provider.MediaStore
+import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -17,7 +20,10 @@ import com.example.trafficlights.R
 import com.example.trafficlights.REQUEST_CAMERA_CODE_PERMISSION
 import com.example.trafficlights.REQUEST_IMAGE_CAPTURE
 import com.example.trafficlights.REQUEST_WRITE_EXTERNAL_STORAGE
+import com.example.trafficlights.`object`.CustomTicketBody
+import com.example.trafficlights.api.ApiService
 import kotlinx.android.synthetic.main.activity_basic_ticket.*
+import okhttp3.MultipartBody
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -26,20 +32,21 @@ import java.util.*
 
 class BasicTicketActivity : AppCompatActivity() {
     var mCurrentPhotoPath: String? = null
-    lateinit var mayday:Uri
+    var isImage1Empty:Boolean = true
+    var isImage2Empty:Boolean = true
+    var isImage3Empty:Boolean = true
+    lateinit var bigPhoto1:File
+    lateinit var bigPhoto2:File
+    lateinit var bigPhoto3:File
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_basic_ticket)
+        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
         checkPermissions()
     }
 
-   /* private fun dispatchTakePictureIntent() {
-        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        if (takePictureIntent.resolveActivity(packageManager) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-        }
-    } */
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -48,12 +55,28 @@ class BasicTicketActivity : AppCompatActivity() {
                 //success
                 val extras: Bundle = data.extras!!
                 val image: Bitmap = extras.get("data") as Bitmap
-                //imageView.setImageBitmap()
-                imageView.setImageURI(mayday)
+                if (isImage1Empty){
+                    imageView.setImageBitmap(image)
+                    imageView.visibility = View.VISIBLE
+                    isImage1Empty = false
+                } else {
+                    if (isImage2Empty){
+                        imageView2.setImageBitmap(image)
+                        imageView2.visibility = View.VISIBLE
+                        isImage2Empty = false
+                    } else {
+                        if (isImage3Empty){
+                            imageView3.setImageBitmap(image)
+                            imageView3.visibility = View.VISIBLE
+                            isImage3Empty = false
+                            buttonAddPhoto.visibility = View.INVISIBLE
+                        }
+                    }
                 }
             } else {
                 //fail
             }
+        }
     }
 
     private fun checkPermissions() {
@@ -73,7 +96,6 @@ class BasicTicketActivity : AppCompatActivity() {
         if(isWriteOnDiskPermissionGranted != PackageManager.PERMISSION_GRANTED){
             askForWriteToDiskPermission()
         }
-        dispatchTakePictureIntent()
 
     }
 
@@ -101,7 +123,6 @@ class BasicTicketActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CAMERA_CODE_PERMISSION && grantResults.isNotEmpty()) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                dispatchTakePictureIntent()
             } else {
                 Toast.makeText(applicationContext, "Permission for camera Denied", Toast.LENGTH_LONG).show()
             }
@@ -109,7 +130,6 @@ class BasicTicketActivity : AppCompatActivity() {
 
         if (requestCode == REQUEST_WRITE_EXTERNAL_STORAGE && grantResults.isNotEmpty()) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                dispatchTakePictureIntent()
             } else {
                 Toast.makeText(applicationContext, "Permission for disk Denied", Toast.LENGTH_LONG).show()
             }
@@ -150,11 +170,46 @@ class BasicTicketActivity : AppCompatActivity() {
 
             // если файл создан, запускаем приложение камеры
 
-            val uri2 = FileProvider.getUriForFile(this, applicationContext.packageName+".provider", photoFile!!)
-            mayday =uri2
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri2)
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+            if (isImage1Empty) {
+                bigPhoto1 = FileProvider.getUriForFile(
+                    this,
+                    applicationContext.packageName + ".provider",
+                    photoFile!!
+                )
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, bigPhoto1)
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+            } else {
+                if (isImage2Empty) {
+                    bigPhoto2 = FileProvider.getUriForFile(
+                        this,
+                        applicationContext.packageName + ".provider",
+                        photoFile!!
+                    )
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, bigPhoto2)
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+                } else {
+                    if (isImage3Empty) {
+                        bigPhoto3 = FileProvider.getUriForFile(
+                            this,
+                            applicationContext.packageName + ".provider",
+                            photoFile!!
+                        )
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, bigPhoto3)
+                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+                    }
+                }
+            }
         }
     }
 
+    public final fun clickOnButtonAddPhoto(view: View){
+        dispatchTakePictureIntent()
+    }
+
+    public final fun clickOnButtonSendTicket(view: View) {
+        val resp = ApiService.sendCustomTicket(customTicketBody = CustomTicketBody("testtoken1", null, 42.5F, 44.5F))
+        Log.d("debug", resp.message().toString())
+        val file: File =
+        val filepart = MultipartBody.Part.createFormData(bigPhoto1.toString(),bigPhoto1.ge, )
+    }
 }

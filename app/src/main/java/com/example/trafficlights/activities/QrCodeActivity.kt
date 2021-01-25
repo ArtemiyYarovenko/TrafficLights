@@ -18,7 +18,7 @@ import androidx.core.util.isNotEmpty
 import com.example.trafficlights.R
 import com.example.trafficlights.REQUEST_CAMERA_CODE_PERMISSION
 import com.example.trafficlights.USER_ID
-import com.example.trafficlights.`object`.TicketBody
+import com.example.trafficlights.`object`.QrTicketBody
 import com.example.trafficlights.api.ApiService
 import com.google.android.gms.vision.CameraSource
 import com.google.android.gms.vision.Detector
@@ -133,7 +133,7 @@ class QrCodeActivity : AppCompatActivity() {
                 Log.d("debug", hashCode)
                 val data:Intent
                 data = if (hashCode != null) {
-                    val ticketBody = TicketBody(hashCode, userId, null )
+                    val ticketBody = QrTicketBody(hashCode, userId, null )
                     ApiService.sendTicket(ticketBody)
                     Intent().apply {
                         putExtra("QR-code scan result", true)

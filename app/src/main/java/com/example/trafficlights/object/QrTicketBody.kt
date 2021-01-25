@@ -2,7 +2,7 @@ package com.example.trafficlights.`object`
 
 import com.google.gson.annotations.SerializedName
 
-data class TicketBody (
+data class QrTicketBody (
         @SerializedName("traffic_light_hash_code")
         val hashCode: String,
         @SerializedName("user_token")

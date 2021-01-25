@@ -1,6 +1,7 @@
 package com.example.trafficlights.activities
 
 import android.app.Activity
+import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -23,7 +24,6 @@ import com.example.trafficlights.REQUEST_WRITE_EXTERNAL_STORAGE
 import com.example.trafficlights.`object`.CustomTicketBody
 import com.example.trafficlights.api.ApiService
 import kotlinx.android.synthetic.main.activity_basic_ticket.*
-import okhttp3.MultipartBody
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -35,9 +35,9 @@ class BasicTicketActivity : AppCompatActivity() {
     var isImage1Empty:Boolean = true
     var isImage2Empty:Boolean = true
     var isImage3Empty:Boolean = true
-    lateinit var bigPhoto1:File
-    lateinit var bigPhoto2:File
-    lateinit var bigPhoto3:File
+    lateinit var bigPhoto1:Uri
+    lateinit var bigPhoto2:Uri
+    lateinit var bigPhoto3:Uri
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +56,8 @@ class BasicTicketActivity : AppCompatActivity() {
                 val extras: Bundle = data.extras!!
                 val image: Bitmap = extras.get("data") as Bitmap
                 if (isImage1Empty){
-                    imageView.setImageBitmap(image)
+                    //imageView.setImageBitmap(image)
+                    imageView.setImageURI(bigPhoto1)
                     imageView.visibility = View.VISIBLE
                     isImage1Empty = false
                 } else {
@@ -174,8 +175,12 @@ class BasicTicketActivity : AppCompatActivity() {
                 bigPhoto1 = FileProvider.getUriForFile(
                     this,
                     applicationContext.packageName + ".provider",
-                    photoFile!!
+                    createImageFile()
+
                 )
+
+                val normalizedBigPhoto1 = bigPhoto1.normalizeScheme()
+
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, bigPhoto1)
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
             } else {
@@ -207,9 +212,21 @@ class BasicTicketActivity : AppCompatActivity() {
     }
 
     public final fun clickOnButtonSendTicket(view: View) {
-        val resp = ApiService.sendCustomTicket(customTicketBody = CustomTicketBody("testtoken1", null, 42.5F, 44.5F))
-        Log.d("debug", resp.message().toString())
-        val file: File =
-        val filepart = MultipartBody.Part.createFormData(bigPhoto1.toString(),bigPhoto1.ge, )
+
+        val resp = ApiService.sendCustomTicket(customTicketBody = CustomTicketBody("testtoken3", null, 42.5F, 44.5F))
+        val d = Log.d("debug", resp.message().toString())
+        val file = getFileFromUri(application.contentResolver, bigPhoto1, application.cacheDir)
+        val kek = 2
+        ApiService.createUploadRequestBody(file)
+    }
+
+    private fun getFileFromUri(contentResolver: ContentResolver, uri: Uri, directory: File): File {
+        val file =
+            File.createTempFile("suffix", "prefix", directory)
+        file.outputStream().use {
+            contentResolver.openInputStream(uri)?.copyTo(it)
+        }
+
+        return file
     }
 }

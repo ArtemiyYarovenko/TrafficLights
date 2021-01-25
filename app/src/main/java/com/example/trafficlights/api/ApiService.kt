@@ -10,6 +10,7 @@ import com.example.trafficlights.`object`.QrTicketBody
 import com.example.trafficlights.`object`.User
 import com.example.trafficlights.background.PollingWorker
 import com.google.gson.GsonBuilder
+import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -46,11 +47,11 @@ interface ApiService {
     ): Call<ApiResponse>
 
     @Multipart
-    @POST("file")
+    @POST("Photo/")
     fun attachFile(
-        @Part("photo") file: RequestBody,
         @Part("ticket_id") ticket_id: RequestBody,
         @Part("user_token") user_id: RequestBody,
+        @Part photo: MultipartBody.Part
     ): Call<ApiResponse>
 
     companion object Ticket {
@@ -109,13 +110,23 @@ interface ApiService {
             val call = apiService.sendCustomTicket(customTicketBody)
             return call.execute()
         }
+
+        fun createUploadRequestBody(file: File){
+            val apiService = create()
+            Log.d("debug", file.exists().toString())
+            Log.d("debug", file.length().toString())
+            val ticket_id: RequestBody = RequestBody.create(MediaType.parse("text/plain"), "7")
+            val user_id: RequestBody = RequestBody.create(
+                MediaType.parse("text/plain"),
+                "testtoken1"
+            )
+            //val file2: RequestBody = RequestBody.create(MediaType.parse("file/*"), file.absoluteFile)
+            val requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file)
+            val body = MultipartBody.Part.createFormData("photo", file.name, requestFile)
+
+            val call = apiService.attachFile(ticket_id, user_id, body)
+            val response = call.execute()
+            Log.d("debug", response.message() + " " + response.errorBody().toString())
+        }
     }
-
-    fun createUploadRequestBody(file: File){
-        val apiService = create()
-        val call = apiService.attachFile()
-    }
-
-
-
 }

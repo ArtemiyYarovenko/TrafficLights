@@ -30,7 +30,7 @@
         </provider>
 
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".activities.BasicTicketActivity"
             android:configChanges="orientation"
             android:noHistory="true"
             android:screenOrientation="portrait">
@@ -44,7 +44,7 @@
         </activity>
 
         <activity
-            android:name=".activities.BasicTicketActivity"
+            android:name=".activities.MainActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait">
             <intent-filter>

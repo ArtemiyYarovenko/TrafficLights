@@ -2,18 +2,20 @@ package com.example.trafficlights.activities
 
 import android.app.Activity
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.StrictMode
 import android.telephony.PhoneNumberUtils
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.trafficlights.R
-import com.example.trafficlights.REGISTRATION
-import com.example.trafficlights.USER_ID
-import com.example.trafficlights.`object`.User
-import com.example.trafficlights.api.ApiService
+import androidx.preference.PreferenceManager
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
+import com.example.trafficlights.*
+import com.example.trafficlights.Utils.isNetworkAvailable
+import com.example.trafficlights.background.RegistrationWorker
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -27,8 +29,8 @@ class MainActivity : AppCompatActivity() {
 
         // генерирование уникального индентификатора пользователя (если такого нет)
         // или получение уже сгенерированного из хранилища
-        val sharedPreferences = getSharedPreferences("TrafficLights", AppCompatActivity.MODE_PRIVATE)
-        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val editor = sharedPreferences.edit()
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -71,15 +73,12 @@ class MainActivity : AppCompatActivity() {
     public final fun clickOnItem(view: View) {
         val intent  = Intent(this, QrCodeActivity::class.java).apply {
             putExtra("ProblemId", "Какая проблема была выбрана (id)")
-            putExtra(USER_ID, userId)
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivityForResult(intent, 1)
     }
 
     fun clickOnRegistrationButton(view: View) {
-        val sharedPreferences = getSharedPreferences("TrafficLights", MODE_PRIVATE)
-        val editor: SharedPreferences.Editor = sharedPreferences.edit()
         var surnameIsNotEmpty = false
         var nameIsNotEmpty = false
         var fatherNameIsNotEmpty = false
@@ -133,33 +132,32 @@ class MainActivity : AppCompatActivity() {
         if (surnameIsNotEmpty && nameIsNotEmpty &&
             phoneNumberIsNotEmpty && fatherNameIsNotEmpty
                 && !phoneNumberFormatIsNotCorrect ) {
-            Toast.makeText(this,
-                    "Регистрация успешно проведена",
-                    Toast.LENGTH_SHORT).show()
-            val registration = ApiService.userRequest(user = User(
-                    editPersonSurname.text.toString(),
-                    editPersonName.text.toString(),
-                    editPersonFatherName.text.toString(),
-                    editTextPhone.text.toString()
-            ))
+            if (isNetworkAvailable(applicationContext)){
+                val registrationWork = OneTimeWorkRequestBuilder<RegistrationWorker>()
+                    .setInputData(
+                        workDataOf(
+                            SURNAME to editPersonSurname.text.toString(),
+                            NAME to editPersonName.text.toString(),
+                            FATHERNAME to editPersonFatherName.text.toString(),
+                            PHONENUMBER to editTextPhone.text.toString()
+                        )
+                    )
+                    .build()
 
-            if (registration.isSuccessful) {
-                val response = registration.body()
-                if (response!!.message != null) {
-                    userId = response.message!!
-                    Toast.makeText(this,
-                        userId,
-                        Toast.LENGTH_SHORT).show()
-                    editor.putBoolean(REGISTRATION, true)
-                    editor.putString(USER_ID, userId)
-                    editor.apply()
-                    registrationBox.visibility = View.INVISIBLE
-                    item.visibility = View.VISIBLE
-                }
+                WorkManager.getInstance(applicationContext)
+                    .enqueue(registrationWork)
+
+                Log.d(DEBUG_TAG, "Запущен запрос на регистрацию в бекграунде")
+
+                registrationBox.visibility = View.INVISIBLE
+                item.visibility = View.VISIBLE
+            } else {
+                Toast.makeText(this, "Проверьте Интернет соединение", Toast.LENGTH_LONG).show()
             }
 
         }
 
     }
+
 
 }

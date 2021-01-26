@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.work.*
+import com.example.trafficlights.DEBUG_TAG
 import com.example.trafficlights.USER_ID
 import com.example.trafficlights.Utils.getFileFromUri
 import com.example.trafficlights.`object`.CustomTicketBody
@@ -23,7 +24,7 @@ class UploadPhotoWorker(appContext: Context, workerParams: WorkerParameters):
                 userId!!, null,
                 long.toFloat(), lat.toFloat()))
 
-        Log.d("debug", resp.body()!!.message)
+        Log.d(DEBUG_TAG, resp.body()!!.message)
 
         val ticketId = resp.body()?.message!!.toInt()
 
@@ -35,7 +36,7 @@ class UploadPhotoWorker(appContext: Context, workerParams: WorkerParameters):
 
         WorkManager.getInstance()
                 .enqueue(tokenWorkPeriodicRequest)
-        Log.d("debug", "Запущен поллинг по заявке без QR")
+        Log.d(DEBUG_TAG, "Запущен поллинг по заявке без QR")
 
         val file1Path = inputData.getString("file1Uri")
         val file2Path = inputData.getString("file2Uri")

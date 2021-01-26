@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.trafficlights.CHANNEL_ID
 import com.example.trafficlights.CHANNEL_NAME
+import com.example.trafficlights.DEBUG_TAG
 
 import com.example.trafficlights.activities.MainActivity
 import com.example.trafficlights.notificationId
@@ -46,7 +47,7 @@ class Notification(private val context: Context, private val token: String, priv
                 .setAutoCancel(true)
 
         //show notification
-        Log.d("debug", "Создано уведоомление")
+        Log.d(DEBUG_TAG, "Создано уведоомление")
         notificationManager.notify(notificationId, builder.build())
     }
 }

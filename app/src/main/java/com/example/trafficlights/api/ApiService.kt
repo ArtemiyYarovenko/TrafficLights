@@ -1,9 +1,11 @@
 package com.example.trafficlights.api
 
+import android.content.Context
 import android.util.Log
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
+import com.example.trafficlights.DEBUG_TAG
 import com.example.trafficlights.`object`.ApiResponse
 import com.example.trafficlights.`object`.CustomTicketBody
 import com.example.trafficlights.`object`.QrTicketBody
@@ -70,14 +72,14 @@ interface ApiService {
             return retrofit.create(ApiService::class.java)
         }
 
-        fun sendQrTicket(qrTicketBody: QrTicketBody) {
+        fun sendQrTicket(qrTicketBody: QrTicketBody, context: Context) {
             val apiService = create()
             val call = apiService.sendTicket(qrTicketBody)
             call.enqueue(object : Callback<ApiResponse> {
                 override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
-                    Log.d("debug", response.message())
+                    Log.d(DEBUG_TAG, response.message())
                     val apiResponse: ApiResponse = response.body()!!
-                    Log.d("debug", apiResponse.toString())
+                    Log.d(DEBUG_TAG, apiResponse.toString())
 
                     if (apiResponse.message != null) {
                         val token = apiResponse.message
@@ -88,14 +90,14 @@ interface ApiService {
                             .setInputData(workDataOf("Token" to token.toInt()))
                             .build()
 
-                        WorkManager.getInstance()
+                        WorkManager.getInstance(context)
                             .enqueue(tokenWorkPeriodicRequest)
-                        Log.d("debug", "Запущен поллинг")
+                        Log.d(DEBUG_TAG, "Запущен поллинг")
                     }
                 }
 
                 override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
-                    Log.d("debug", t.message!!)
+                    Log.d(DEBUG_TAG, t.message!!)
                 }
             })
         }
@@ -114,8 +116,8 @@ interface ApiService {
 
         fun createUploadRequestBody(file: File, ticketId: Int, userId: String){
             val apiService = create()
-            Log.d("debug", file.exists().toString())
-            Log.d("debug", file.length().toString())
+            Log.d(DEBUG_TAG, file.exists().toString())
+            Log.d(DEBUG_TAG, file.length().toString())
             val ticketId: RequestBody = RequestBody.create(MediaType.parse("text/plain"), ticketId.toString())
             val userId: RequestBody = RequestBody.create(MediaType.parse("text/plain"), userId)
 
@@ -124,7 +126,7 @@ interface ApiService {
 
             val call = apiService.attachFile(ticketId, userId, body)
             val response = call.execute()
-            Log.d("debug", response.message() + " " + response.errorBody().toString())
+            Log.d(DEBUG_TAG, response.message() + " " + response.errorBody().toString())
         }
     }
 }

@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.isNotEmpty
+import androidx.preference.PreferenceManager
 import com.example.trafficlights.R
 import com.example.trafficlights.REQUEST_CAMERA_CODE_PERMISSION
 import com.example.trafficlights.USER_ID
@@ -29,7 +30,7 @@ import kotlinx.android.synthetic.main.qr_code_activity.*
 
 class QrCodeActivity : AppCompatActivity() {
 
-    private lateinit var userId: String
+    lateinit var userId: String
     private lateinit var cameraSource: CameraSource
     private lateinit var detector: BarcodeDetector
 
@@ -37,7 +38,8 @@ class QrCodeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qr_code_activity)
         cameraSurfaceView.visibility = View.INVISIBLE
-        userId = intent.getStringExtra(USER_ID)!!
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        userId = sharedPreferences.getString(USER_ID, null)!!
 
         textResult.text = getString(R.string.qr_scan_invite)
         if (ContextCompat.checkSelfPermission(
@@ -134,7 +136,7 @@ class QrCodeActivity : AppCompatActivity() {
                 val data:Intent
                 data = if (hashCode != null) {
                     val ticketBody = QrTicketBody(hashCode, userId, null )
-                    ApiService.sendQrTicket(ticketBody)
+                    ApiService.sendQrTicket(ticketBody, applicationContext)
                     Intent().apply {
                         putExtra("QR-code scan result", true)
                     }

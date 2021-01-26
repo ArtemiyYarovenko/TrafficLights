@@ -10,15 +10,18 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
+import androidx.preference.PreferenceManager
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.example.trafficlights.*
 import com.example.trafficlights.Utils.hasPermissions
 import com.example.trafficlights.Utils.isInit
+import com.example.trafficlights.Utils.isNetworkAvailable
 import com.example.trafficlights.background.UploadPhotoWorker
 import kotlinx.android.synthetic.main.activity_basic_ticket.*
 import java.io.File
@@ -41,7 +44,7 @@ class BasicTicketActivity(): AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_basic_ticket)
         checkPermissions()
-        val sharedPreferences = getSharedPreferences("TrafficLights", AppCompatActivity.MODE_PRIVATE)
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         userId = sharedPreferences.getString(USER_ID, null)!!
         Utils.getGeolocation(this)
     }
@@ -56,7 +59,6 @@ class BasicTicketActivity(): AppCompatActivity() {
                 val image: Bitmap = extras.get("data") as Bitmap
                 if (isImage1Empty){
                     imageView.setImageBitmap(image)
-                    //imageView.setImageURI(bigPhoto1)
                     imageView.visibility = View.VISIBLE
                     isImage1Empty = false
                 } else {
@@ -156,14 +158,15 @@ class BasicTicketActivity(): AppCompatActivity() {
     }
 
     fun clickOnButtonSendTicket(view: View) {
-        lateinit var location: Location
-        if (isInit()) {
-            location = Utils.location
-            Log.d("debug", location.latitude.toString())
-        }
-        val lat: Double = location.latitude
-        val long: Double = location.longitude
-        val sendTicketWithPhotoWork = OneTimeWorkRequestBuilder<UploadPhotoWorker>()
+        if (isNetworkAvailable(applicationContext)) {
+            lateinit var location: Location
+            if (isInit()) {
+                location = Utils.location
+                Log.d(DEBUG_TAG, location.latitude.toString())
+            }
+            val lat: Double = location.latitude
+            val long: Double = location.longitude
+            val sendTicketWithPhotoWork = OneTimeWorkRequestBuilder<UploadPhotoWorker>()
                 .setInputData(workDataOf(
                     "file1Uri" to bigPhoto1.toString(),
                     "file2Uri" to bigPhoto2.toString(),
@@ -174,10 +177,12 @@ class BasicTicketActivity(): AppCompatActivity() {
                     USER_ID to userId))
                 .build()
 
-        WorkManager.getInstance()
+            WorkManager.getInstance(applicationContext)
                 .enqueue(sendTicketWithPhotoWork)
-        Log.d("debug", "Запущен загрузчик")
-
+            Log.d(DEBUG_TAG, "Запущен загрузчик")
+        } else {
+            Toast.makeText(this, "Проверьте Интернет соединение", Toast.LENGTH_LONG).show()
+        }
     }
 
 }

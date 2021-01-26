@@ -1,9 +1,7 @@
 package com.example.trafficlights.activities
 
 import android.app.Activity
-import android.content.ContentResolver
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -11,18 +9,15 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.example.trafficlights.R
-import com.example.trafficlights.REQUEST_CAMERA_CODE_PERMISSION
-import com.example.trafficlights.REQUEST_IMAGE_CAPTURE
-import com.example.trafficlights.REQUEST_WRITE_EXTERNAL_STORAGE
+import com.example.trafficlights.*
+import com.example.trafficlights.Utils.hasPermissions
+import com.example.trafficlights.Utils.isInit
 import com.example.trafficlights.background.UploadPhotoWorker
 import kotlinx.android.synthetic.main.activity_basic_ticket.*
 import java.io.File
@@ -44,9 +39,10 @@ class BasicTicketActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_basic_ticket)
         checkPermissions()
+        Utils.getGeolocation(this)
     }
 
-
+    // получение миниатюры с камеры, чтобы отобразить на экране
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
@@ -80,62 +76,10 @@ class BasicTicketActivity : AppCompatActivity() {
     }
 
     private fun checkPermissions() {
-       val isCameraPermissionGranted =  ContextCompat.checkSelfPermission(
-               this,
-               android.Manifest.permission.CAMERA
-       )
-        val isWriteOnDiskPermissionGranted = ContextCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-        )
-
-        if(isCameraPermissionGranted != PackageManager.PERMISSION_GRANTED) {
-            askForCameraPermission()
-        }
-
-        if(isWriteOnDiskPermissionGranted != PackageManager.PERMISSION_GRANTED){
-            askForWriteToDiskPermission()
-        }
-
-    }
-
-    private fun askForWriteToDiskPermission() {
-        ActivityCompat.requestPermissions(
-                this,
-                arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                REQUEST_WRITE_EXTERNAL_STORAGE
-        )
-    }
-
-    private fun askForCameraPermission() {
-        ActivityCompat.requestPermissions(
-                this,
-                arrayOf(android.Manifest.permission.CAMERA),
-                REQUEST_CAMERA_CODE_PERMISSION
-        )
-    }
-
-    override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<out String>,
-            grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_CAMERA_CODE_PERMISSION && grantResults.isNotEmpty()) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            } else {
-                Toast.makeText(applicationContext, "Permission for camera Denied", Toast.LENGTH_LONG).show()
-            }
-        }
-
-        if (requestCode == REQUEST_WRITE_EXTERNAL_STORAGE && grantResults.isNotEmpty()) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            } else {
-                Toast.makeText(applicationContext, "Permission for disk Denied", Toast.LENGTH_LONG).show()
-            }
+        if (!hasPermissions(this, *PERMISSIONS)) {
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL)
         }
     }
-
 
     @Throws(IOException::class)
     private fun createImageFile(): File {
@@ -172,30 +116,28 @@ class BasicTicketActivity : AppCompatActivity() {
 
             if (isImage1Empty) {
                 bigPhoto1 = FileProvider.getUriForFile(
-                    this,
-                    applicationContext.packageName + ".provider",
-                    createImageFile()
+                        this,
+                        applicationContext.packageName + ".provider",
+                        createImageFile()
 
                 )
-
-
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, bigPhoto1)
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
             } else {
                 if (isImage2Empty) {
                     bigPhoto2 = FileProvider.getUriForFile(
-                        this,
-                        applicationContext.packageName + ".provider",
-                        photoFile!!
+                            this,
+                            applicationContext.packageName + ".provider",
+                            photoFile!!
                     )
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, bigPhoto2)
                     startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
                 } else {
                     if (isImage3Empty) {
                         bigPhoto3 = FileProvider.getUriForFile(
-                            this,
-                            applicationContext.packageName + ".provider",
-                            photoFile!!
+                                this,
+                                applicationContext.packageName + ".provider",
+                                photoFile!!
                         )
                         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, bigPhoto3)
                         startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
@@ -210,11 +152,16 @@ class BasicTicketActivity : AppCompatActivity() {
     }
 
     public final fun clickOnButtonSendTicket(view: View) {
+        if (isInit()) {
+            val location = Utils.location
+            Log.d("debug", location.latitude.toString())
+        }
 
         val sendTicketWithPhotoWork = OneTimeWorkRequestBuilder<UploadPhotoWorker>()
-                .setInputData(workDataOf("file1Uri" to bigPhoto1.toString(),
-                        "file2Uri" to bigPhoto2.toString(),
-                        "file3Uri" to bigPhoto3.toString()))
+                .setInputData(workDataOf(
+                    "file1Uri" to bigPhoto1.toString(),
+                    "file2Uri" to bigPhoto2.toString(),
+                    "file3Uri" to bigPhoto3.toString()))
                 .build()
 
         WorkManager.getInstance()
@@ -223,13 +170,4 @@ class BasicTicketActivity : AppCompatActivity() {
 
     }
 
-    private fun getFileFromUri(contentResolver: ContentResolver, uri: Uri, directory: File): File {
-        val file =
-            File.createTempFile("suffix", "prefix", directory)
-        file.outputStream().use {
-            contentResolver.openInputStream(uri)?.copyTo(it)
-        }
-
-        return file
-    }
 }

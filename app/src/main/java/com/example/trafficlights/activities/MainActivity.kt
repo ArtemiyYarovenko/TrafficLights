@@ -17,6 +17,7 @@ import com.example.trafficlights.*
 import com.example.trafficlights.Utils.isNetworkAvailable
 import com.example.trafficlights.background.RegistrationWorker
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.item.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,23 +36,28 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //тестовая фигня для работы с регистрацией
+        editor.putBoolean(REGISTRATION,true).apply()
+        editor.putString(USER_ID, "TEST").apply()
+        //editor.putBoolean(REGISTRATION, false).commit()
+
         // проверка на регистрацию
         if (!sharedPreferences.getBoolean(REGISTRATION, false)) {
             registrationBox.visibility = View.VISIBLE
         } else {
-            item.visibility = View.VISIBLE
+
+            itemLayout.visibility = View.VISIBLE
             userId = sharedPreferences.getString(USER_ID, null)!!
         }
 
-        //тестовая фигня для сброса регистрации
-        editor.putBoolean(REGISTRATION, false).commit()
+
 
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        var  requestStatus: Boolean = false
-        if (requestCode == 1) {
+        var  requestStatus = false
+        if (requestCode == REQUEST_CODE_ACTIVITY_QR) {
             if (resultCode == Activity.RESULT_OK && data != null) {
                 //success
                 data.apply {
@@ -61,6 +67,15 @@ class MainActivity : AppCompatActivity() {
                 //fail
             }
         }
+
+        if (requestCode == REQUEST_CODE_ACTIVITY_PHOTO) {
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                data.apply {
+                    requestStatus = getBooleanExtra("QR-code scan result", false)
+                }
+            }
+        }
+
         if (requestStatus) {
             Toast.makeText(this, "Ваша заявка успешно отправлена", Toast.LENGTH_SHORT).show()
             /* "Сюда по хорошему пихнуть что-то типа стикера с указанием токена заявки" +
@@ -70,12 +85,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    public final fun clickOnItem(view: View) {
+    fun clickOnQrOption(view: View) {
         val intent  = Intent(this, QrCodeActivity::class.java).apply {
-            putExtra("ProblemId", "Какая проблема была выбрана (id)")
+            putExtra(PROBLEM_ID, "Какая проблема была выбрана (id)")
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        startActivityForResult(intent, 1)
+        startActivityForResult(intent, REQUEST_CODE_ACTIVITY_QR)
+    }
+
+    fun clickOnPhotoOption(view: View) {
+        val intent  = Intent(this, BasicTicketActivity::class.java).apply {
+            putExtra(PROBLEM_ID, "Какая проблема была выбрана (id)")
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        startActivityForResult(intent, REQUEST_CODE_ACTIVITY_PHOTO)
     }
 
     fun clickOnRegistrationButton(view: View) {
@@ -150,7 +173,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d(DEBUG_TAG, "Запущен запрос на регистрацию в бекграунде")
 
                 registrationBox.visibility = View.INVISIBLE
-                item.visibility = View.VISIBLE
+                itemLayout.visibility = View.VISIBLE
             } else {
                 Toast.makeText(this, "Проверьте Интернет соединение", Toast.LENGTH_LONG).show()
             }

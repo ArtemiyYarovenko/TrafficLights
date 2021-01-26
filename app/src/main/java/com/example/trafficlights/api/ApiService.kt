@@ -72,7 +72,7 @@ interface ApiService {
             return retrofit.create(ApiService::class.java)
         }
 
-        fun sendQrTicket(qrTicketBody: QrTicketBody, context: Context) {
+        fun sendQrTicket(qrTicketBody: QrTicketBody, context: Context): Boolean {
             val apiService = create()
             val call = apiService.sendTicket(qrTicketBody)
             call.enqueue(object : Callback<ApiResponse> {
@@ -100,6 +100,7 @@ interface ApiService {
                     Log.d(DEBUG_TAG, t.message!!)
                 }
             })
+            return call.isExecuted
         }
 
         fun userRequest(user: User):Response<ApiResponse>  {

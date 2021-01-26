@@ -48,6 +48,11 @@ val PERMISSIONS = arrayOf(
     Manifest.permission.CAMERA
 )
 
+const val REQUEST_CODE_ACTIVITY_QR = 1
+const val REQUEST_CODE_ACTIVITY_PHOTO = 2
+
+const val PROBLEM_ID = "PROBLEM_ID"
+
 object Utils {
     lateinit var location: Location
 

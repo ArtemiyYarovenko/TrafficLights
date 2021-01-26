@@ -56,6 +56,7 @@ interface ApiService {
 
     companion object Ticket {
         private const val BASE_URL = "http://84.22.135.132:5000/"
+
         fun create():ApiService {
             val gson = GsonBuilder()
                 .setLenient()
@@ -69,7 +70,7 @@ interface ApiService {
             return retrofit.create(ApiService::class.java)
         }
 
-        fun sendTicket(qrTicketBody: QrTicketBody) {
+        fun sendQrTicket(qrTicketBody: QrTicketBody) {
             val apiService = create()
             val call = apiService.sendTicket(qrTicketBody)
             call.enqueue(object : Callback<ApiResponse> {
@@ -115,13 +116,13 @@ interface ApiService {
             val apiService = create()
             Log.d("debug", file.exists().toString())
             Log.d("debug", file.length().toString())
-            val ticket_id: RequestBody = RequestBody.create(MediaType.parse("text/plain"), ticketId.toString())
-            val user_id: RequestBody = RequestBody.create(MediaType.parse("text/plain"), userId)
+            val ticketId: RequestBody = RequestBody.create(MediaType.parse("text/plain"), ticketId.toString())
+            val userId: RequestBody = RequestBody.create(MediaType.parse("text/plain"), userId)
 
             val requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file)
             val body = MultipartBody.Part.createFormData("photo", file.name, requestFile)
 
-            val call = apiService.attachFile(ticket_id, user_id, body)
+            val call = apiService.attachFile(ticketId, userId, body)
             val response = call.execute()
             Log.d("debug", response.message() + " " + response.errorBody().toString())
         }

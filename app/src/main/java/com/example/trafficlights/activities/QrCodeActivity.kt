@@ -134,7 +134,7 @@ class QrCodeActivity : AppCompatActivity() {
                 val data:Intent
                 data = if (hashCode != null) {
                     val ticketBody = QrTicketBody(hashCode, userId, null )
-                    ApiService.sendTicket(ticketBody)
+                    ApiService.sendQrTicket(ticketBody)
                     Intent().apply {
                         putExtra("QR-code scan result", true)
                     }

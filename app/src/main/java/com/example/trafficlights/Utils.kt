@@ -1,18 +1,25 @@
 package com.example.trafficlights
 
 import android.Manifest
+import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
+import java.io.File
 
 
 const val USER_ID = "USER_ID"
 const val REGISTRATION = "REGISTRATION"
+
+const val DESCRIPTION = "DESCRIPTION"
+const val LATITUDE = "LATITUDE"
+const val LONGITUDE = "LONGITUDE"
 
 const val SURNAME = "SURNAME"
 const val NAME = "NAME"
@@ -38,7 +45,7 @@ val PERMISSIONS = arrayOf(
 )
 
 object Utils {
-    public lateinit var location: Location
+    lateinit var location: Location
 
     fun hasPermissions(context: Context, vararg permissions: String): Boolean = permissions.all {
         ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
@@ -57,14 +64,24 @@ object Utils {
         ) {
             Toast.makeText(context, "Выдайте разрешения приложению в настройках", Toast.LENGTH_LONG).show()
         }
-        val addOnCompleteListener = fusedLocationProviderClient
+        fusedLocationProviderClient
             .getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
-            .addOnCompleteListener() { task ->
+            .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d("debug", task.result.toString())
                     location = task.result
                 }
             }
+    }
+
+    fun getFileFromUri(contentResolver: ContentResolver, uri: Uri, directory: File): File {
+        val file =
+            File.createTempFile("suffix", "prefix", directory)
+        file.outputStream().use {
+            contentResolver.openInputStream(uri)?.copyTo(it)
+        }
+
+        return file
     }
 
     fun isInit() = this::location.isInitialized

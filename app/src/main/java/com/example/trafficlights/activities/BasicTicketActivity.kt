@@ -3,6 +3,7 @@ package com.example.trafficlights.activities
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.location.Location
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -26,7 +27,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class BasicTicketActivity : AppCompatActivity() {
+class BasicTicketActivity(): AppCompatActivity() {
+    var userId: String? = null
     var mCurrentPhotoPath: String? = null
     var isImage1Empty:Boolean = true
     var isImage2Empty:Boolean = true
@@ -39,6 +41,8 @@ class BasicTicketActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_basic_ticket)
         checkPermissions()
+        val sharedPreferences = getSharedPreferences("TrafficLights", AppCompatActivity.MODE_PRIVATE)
+        userId = sharedPreferences.getString(USER_ID, null)!!
         Utils.getGeolocation(this)
     }
 
@@ -147,21 +151,27 @@ class BasicTicketActivity : AppCompatActivity() {
         }
     }
 
-    public final fun clickOnButtonAddPhoto(view: View){
+    fun clickOnButtonAddPhoto(view: View){
         dispatchTakePictureIntent()
     }
 
-    public final fun clickOnButtonSendTicket(view: View) {
+    fun clickOnButtonSendTicket(view: View) {
+        lateinit var location: Location
         if (isInit()) {
-            val location = Utils.location
+            location = Utils.location
             Log.d("debug", location.latitude.toString())
         }
-
+        val lat: Double = location.latitude
+        val long: Double = location.longitude
         val sendTicketWithPhotoWork = OneTimeWorkRequestBuilder<UploadPhotoWorker>()
                 .setInputData(workDataOf(
                     "file1Uri" to bigPhoto1.toString(),
                     "file2Uri" to bigPhoto2.toString(),
-                    "file3Uri" to bigPhoto3.toString()))
+                    "file3Uri" to bigPhoto3.toString(),
+                    DESCRIPTION to descriptionTextView.text.toString(),
+                    LATITUDE to lat,
+                    LONGITUDE to long,
+                    USER_ID to userId))
                 .build()
 
         WorkManager.getInstance()

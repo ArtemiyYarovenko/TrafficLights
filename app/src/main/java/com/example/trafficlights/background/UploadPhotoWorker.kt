@@ -1,14 +1,13 @@
 package com.example.trafficlights.background
 
-import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.work.*
 import com.example.trafficlights.USER_ID
+import com.example.trafficlights.Utils.getFileFromUri
 import com.example.trafficlights.`object`.CustomTicketBody
 import com.example.trafficlights.api.ApiService
-import java.io.File
 import java.util.concurrent.TimeUnit
 
 class UploadPhotoWorker(appContext: Context, workerParams: WorkerParameters):
@@ -17,7 +16,13 @@ class UploadPhotoWorker(appContext: Context, workerParams: WorkerParameters):
     override fun doWork(): Result {
 
         val userId = inputData.getString(USER_ID)
-        val resp = ApiService.sendCustomTicket(customTicketBody = CustomTicketBody("testtoken1", null, 42.5F, 44.5F))
+        val lat = inputData.getDouble("lat", 0.0)
+        val long = inputData.getDouble("long", 0.0)
+        val resp = ApiService.sendCustomTicket(
+            customTicketBody = CustomTicketBody(
+                userId!!, null,
+                long.toFloat(), lat.toFloat()))
+
         Log.d("debug", resp.body()!!.message)
 
         val ticketId = resp.body()?.message!!.toInt()
@@ -37,27 +42,19 @@ class UploadPhotoWorker(appContext: Context, workerParams: WorkerParameters):
         val file3Path = inputData.getString("file3Uri")
         if (file1Path != null){
             val realFile1 = getFileFromUri(applicationContext.contentResolver, Uri.parse(file1Path), applicationContext.cacheDir)
-            ApiService.createUploadRequestBody(realFile1, ticketId, "testtoken1")
+            ApiService.createUploadRequestBody(realFile1, ticketId, userId)
         }
         if (file2Path != null){
             val realFile2 = getFileFromUri(applicationContext.contentResolver, Uri.parse(file2Path), applicationContext.cacheDir)
-            ApiService.createUploadRequestBody(realFile2, ticketId, "testtoken1")
+            ApiService.createUploadRequestBody(realFile2, ticketId, userId)
         }
         if (file3Path != null){
             val realFile3 = getFileFromUri(applicationContext.contentResolver, Uri.parse(file3Path), applicationContext.cacheDir)
-            ApiService.createUploadRequestBody(realFile3, ticketId, "testtoken1")
+            ApiService.createUploadRequestBody(realFile3, ticketId, userId)
         }
 
         return Result.success()
     }
 
-    private fun getFileFromUri(contentResolver: ContentResolver, uri: Uri, directory: File): File {
-        val file =
-                File.createTempFile("suffix", "prefix", directory)
-        file.outputStream().use {
-            contentResolver.openInputStream(uri)?.copyTo(it)
-        }
 
-        return file
-    }
 }

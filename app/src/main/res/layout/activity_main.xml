@@ -44,7 +44,7 @@
 
         <TextView
             android:id="@+id/lightText"
-            android:layout_width="wrap_content"
+            android:layout_width="80dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
@@ -55,6 +55,27 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/lightImage"
             app:layout_constraintTop_toTopOf="@+id/lightImage" />
+
+        <Button
+            android:id="@+id/ButtonQr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="QR"
+            app:layout_constraintBottom_toBottomOf="@+id/lightText"
+            app:layout_constraintStart_toEndOf="@+id/lightText"
+            app:layout_constraintTop_toTopOf="@+id/lightText" />
+
+        <Button
+            android:id="@+id/ButtonTicket"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="photo"
+            app:layout_constraintBottom_toBottomOf="@+id/ButtonQr"
+            app:layout_constraintStart_toEndOf="@+id/ButtonQr"
+            app:layout_constraintTop_toTopOf="@+id/ButtonQr" />
+
     </view>
 
     <view

@@ -16,6 +16,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.isNotEmpty
 import androidx.preference.PreferenceManager
+import com.example.trafficlights.DEBUG_TAG
 import com.example.trafficlights.R
 import com.example.trafficlights.REQUEST_CAMERA_CODE_PERMISSION
 import com.example.trafficlights.USER_ID
@@ -132,7 +133,7 @@ class QrCodeActivity : AppCompatActivity() {
                 handler.post(Runnable {textResult.text = "QR-код успешно отсканирован"  })
                 handler.post(Runnable { cameraSource.stop() })
                 val hashCode = code.displayValue
-                Log.d("debug", hashCode)
+                Log.d(DEBUG_TAG, hashCode)
                 val data:Intent
                 data = if (hashCode != null) {
                     val ticketBody = QrTicketBody(hashCode, userId, null )

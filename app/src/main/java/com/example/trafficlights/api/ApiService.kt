@@ -111,16 +111,13 @@ interface ApiService {
             return call.execute()
         }
 
-        fun createUploadRequestBody(file: File){
+        fun createUploadRequestBody(file: File, ticketId: Int, userId: String){
             val apiService = create()
             Log.d("debug", file.exists().toString())
             Log.d("debug", file.length().toString())
-            val ticket_id: RequestBody = RequestBody.create(MediaType.parse("text/plain"), "7")
-            val user_id: RequestBody = RequestBody.create(
-                MediaType.parse("text/plain"),
-                "testtoken1"
-            )
-            //val file2: RequestBody = RequestBody.create(MediaType.parse("file/*"), file.absoluteFile)
+            val ticket_id: RequestBody = RequestBody.create(MediaType.parse("text/plain"), ticketId.toString())
+            val user_id: RequestBody = RequestBody.create(MediaType.parse("text/plain"), userId)
+
             val requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file)
             val body = MultipartBody.Part.createFormData("photo", file.name, requestFile)
 

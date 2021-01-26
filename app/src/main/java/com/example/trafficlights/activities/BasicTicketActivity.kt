@@ -8,7 +8,6 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.os.StrictMode
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
@@ -17,12 +16,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.example.trafficlights.R
 import com.example.trafficlights.REQUEST_CAMERA_CODE_PERMISSION
 import com.example.trafficlights.REQUEST_IMAGE_CAPTURE
 import com.example.trafficlights.REQUEST_WRITE_EXTERNAL_STORAGE
-import com.example.trafficlights.`object`.CustomTicketBody
-import com.example.trafficlights.api.ApiService
+import com.example.trafficlights.background.UploadPhotoWorker
 import kotlinx.android.synthetic.main.activity_basic_ticket.*
 import java.io.File
 import java.io.IOException
@@ -35,15 +36,13 @@ class BasicTicketActivity : AppCompatActivity() {
     var isImage1Empty:Boolean = true
     var isImage2Empty:Boolean = true
     var isImage3Empty:Boolean = true
-    lateinit var bigPhoto1:Uri
-    lateinit var bigPhoto2:Uri
-    lateinit var bigPhoto3:Uri
+    var bigPhoto1:Uri? = null
+    var bigPhoto2:Uri? = null
+    var bigPhoto3:Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_basic_ticket)
-        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
-        StrictMode.setThreadPolicy(policy)
         checkPermissions()
     }
 
@@ -56,8 +55,8 @@ class BasicTicketActivity : AppCompatActivity() {
                 val extras: Bundle = data.extras!!
                 val image: Bitmap = extras.get("data") as Bitmap
                 if (isImage1Empty){
-                    //imageView.setImageBitmap(image)
-                    imageView.setImageURI(bigPhoto1)
+                    imageView.setImageBitmap(image)
+                    //imageView.setImageURI(bigPhoto1)
                     imageView.visibility = View.VISIBLE
                     isImage1Empty = false
                 } else {
@@ -179,7 +178,6 @@ class BasicTicketActivity : AppCompatActivity() {
 
                 )
 
-                val normalizedBigPhoto1 = bigPhoto1.normalizeScheme()
 
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, bigPhoto1)
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
@@ -213,11 +211,16 @@ class BasicTicketActivity : AppCompatActivity() {
 
     public final fun clickOnButtonSendTicket(view: View) {
 
-        val resp = ApiService.sendCustomTicket(customTicketBody = CustomTicketBody("testtoken3", null, 42.5F, 44.5F))
-        val d = Log.d("debug", resp.message().toString())
-        val file = getFileFromUri(application.contentResolver, bigPhoto1, application.cacheDir)
-        val kek = 2
-        ApiService.createUploadRequestBody(file)
+        val sendTicketWithPhotoWork = OneTimeWorkRequestBuilder<UploadPhotoWorker>()
+                .setInputData(workDataOf("file1Uri" to bigPhoto1.toString(),
+                        "file2Uri" to bigPhoto2.toString(),
+                        "file3Uri" to bigPhoto3.toString()))
+                .build()
+
+        WorkManager.getInstance()
+                .enqueue(sendTicketWithPhotoWork)
+        Log.d("debug", "Запущен загрузчик")
+
     }
 
     private fun getFileFromUri(contentResolver: ContentResolver, uri: Uri, directory: File): File {

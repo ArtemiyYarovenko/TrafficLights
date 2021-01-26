@@ -23,7 +23,7 @@ class PollingWorker (appContext: Context, workerParams: WorkerParameters):
         val callTicket = apiService.checkToken(token)
 
         val status : String
-        var lastStatus: String = RECEIVED
+        var lastStatus: String? = null
 
         Log.d("debug", "Поллинг воркер начал работу")
 
@@ -36,9 +36,9 @@ class PollingWorker (appContext: Context, workerParams: WorkerParameters):
         if (tokenResponse.message != null) {
             status = tokenResponse.message
             Log.d("debug", "Полученный статус = $status")
-            if(status !=lastStatus){
+            if(status != lastStatus){
                 when (status) {
-                    IN_PROGRESS ->{
+                    RECEIVED, IN_PROGRESS ->{
                         lastStatus = status
                         Notification(applicationContext, token.toString(), status).createNotification()
                     }

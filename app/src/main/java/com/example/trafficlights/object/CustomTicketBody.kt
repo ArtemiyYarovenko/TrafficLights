@@ -8,7 +8,7 @@ data class CustomTicketBody (
     @SerializedName("description")
     val description: String?,
     @SerializedName("long_")
-    val long: Float,
+    val long: Double,
     @SerializedName("lat")
-    val lat: Float
+    val lat: Double
 )

@@ -16,14 +16,19 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.isNotEmpty
 import androidx.preference.PreferenceManager
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.example.trafficlights.*
 import com.example.trafficlights.`object`.QrTicketBody
 import com.example.trafficlights.api.ApiService
+import com.example.trafficlights.background.PollingWorker
 import com.google.android.gms.vision.CameraSource
 import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import kotlinx.android.synthetic.main.qr_code_activity.*
+import java.util.concurrent.TimeUnit
 
 
 class QrCodeActivity : AppCompatActivity() {
@@ -50,6 +55,7 @@ class QrCodeActivity : AppCompatActivity() {
             setupControls()
         }
     }
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -132,6 +138,9 @@ class QrCodeActivity : AppCompatActivity() {
                 val hashCode = code.displayValue
                 Log.d(DEBUG_TAG, hashCode)
                 val data = Intent()
+                val metacontext = this@QrCodeActivity
+                val context = this
+
                 if (hashCode != null) {
                     val ticketBody = QrTicketBody(hashCode, userId, null )
                     val response = ApiService.sendQrTicket2(ticketBody)
@@ -149,6 +158,15 @@ class QrCodeActivity : AppCompatActivity() {
                             data.apply {
                                 putExtra(STATUS, true)
                                 putExtra("ticket_id", message)
+                                val tokenWorkPeriodicRequest = PeriodicWorkRequestBuilder<PollingWorker>(
+                                        15, TimeUnit.MINUTES)
+                                        .addTag(message.toString())
+                                        .setInputData(workDataOf("Token" to message.toInt()))
+                                        .build()
+
+                                WorkManager.getInstance(applicationContext)
+                                        .enqueue(tokenWorkPeriodicRequest)
+                                Log.d(DEBUG_TAG, "Запущен поллинг")
                             }
                         }
                     } else {

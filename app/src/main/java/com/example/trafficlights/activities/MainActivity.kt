@@ -51,7 +51,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -59,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         var requestStatus = false
         var reason:String? = null
         var ticket:String? = null
-        if (requestCode == REQUEST_CODE_ACTIVITY_QR) {
+        if (requestCode == REQUEST_CODE_ACTIVITY_QR || requestCode == REQUEST_CODE_ACTIVITY_PHOTO) {
             if (resultCode == Activity.RESULT_OK && data != null) {
                 //success
                 data.apply {
@@ -79,13 +78,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        if (requestCode == REQUEST_CODE_ACTIVITY_PHOTO) {
-            if (resultCode == Activity.RESULT_OK && data != null) {
-                data.apply {
-                    requestStatus = getBooleanExtra(STATUS, false)
-                }
-            }
-        }
 
     }
 
@@ -104,6 +96,7 @@ class MainActivity : AppCompatActivity() {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivityForResult(intent, REQUEST_CODE_ACTIVITY_PHOTO)
     }
+
 
     fun clickOnRegistrationButton(view: View) {
         var surnameIsNotEmpty = false

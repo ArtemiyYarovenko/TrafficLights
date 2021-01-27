@@ -2,15 +2,11 @@ package com.example.trafficlights.api
 
 import android.content.Context
 import android.util.Log
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.workDataOf
 import com.example.trafficlights.DEBUG_TAG
 import com.example.trafficlights.`object`.ApiResponse
 import com.example.trafficlights.`object`.CustomTicketBody
 import com.example.trafficlights.`object`.QrTicketBody
 import com.example.trafficlights.`object`.User
-import com.example.trafficlights.background.PollingWorker
 import com.google.gson.GsonBuilder
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -23,7 +19,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 import java.io.File
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 
 interface ApiService {
@@ -83,16 +78,7 @@ interface ApiService {
 
                     if (apiResponse.message != null) {
                         val token = apiResponse.message
-                        val tokenWorkPeriodicRequest = PeriodicWorkRequestBuilder<PollingWorker>(
-                            15, TimeUnit.MINUTES, 3, TimeUnit.MINUTES
-                        )
-                            .addTag(token)
-                            .setInputData(workDataOf("Token" to token.toInt()))
-                            .build()
 
-                        WorkManager.getInstance(context)
-                            .enqueue(tokenWorkPeriodicRequest)
-                        Log.d(DEBUG_TAG, "Запущен поллинг")
                     }
                 }
 
@@ -104,7 +90,7 @@ interface ApiService {
         }
 
         fun sendQrTicket2(qrTicketBody: QrTicketBody): Response<ApiResponse> {
-            val apiService = ApiService.create()
+            val apiService = create()
             val call = apiService.sendTicket(qrTicketBody)
             return call.execute()
         }

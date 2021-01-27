@@ -39,7 +39,6 @@ const val IN_PROGRESS = "В обработке"
 const val DONE = "Выполнена"
 const val CANCELLED = "Отменена"
 
-const val REQUEST_IMAGE_CAPTURE = 14
 const val REQUEST_CAMERA_CODE_PERMISSION = 15
 const val PERMISSION_ALL = 1
 val PERMISSIONS = arrayOf(
@@ -50,6 +49,7 @@ val PERMISSIONS = arrayOf(
 
 const val REQUEST_CODE_ACTIVITY_QR = 1
 const val REQUEST_CODE_ACTIVITY_PHOTO = 2
+const val REQUEST_IMAGE_CAPTURE = 3
 
 const val PROBLEM_ID = "PROBLEM_ID"
 const val STATUS = "STATUS"
@@ -74,15 +74,18 @@ object Utils {
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             Toast.makeText(context, "Выдайте разрешения приложению в настройках", Toast.LENGTH_LONG).show()
+        } else {
+            Log.d(DEBUG_TAG, "пытаюсь получить локацию")
+            fusedLocationProviderClient
+                    .getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, null)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d(DEBUG_TAG, task.result.toString())
+                            location = task.result
+                        }
+                    }
         }
-        fusedLocationProviderClient
-            .getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d("debug", task.result.toString())
-                    location = task.result
-                }
-            }
+
     }
 
     fun getFileFromUri(contentResolver: ContentResolver, uri: Uri, directory: File): File {

@@ -34,10 +34,11 @@ class RegistrationWorker(appContext: Context, workerParams: WorkerParameters):
 
         if (registration.isSuccessful) {
             val response = registration.body()
-            Log.d(DEBUG_TAG, "Ошибка(если есть) " + response?.error!!)
-            if (response.message != null) {
+            Log.d(DEBUG_TAG, "Ошибка(если есть) " + response?.error)
+            if (response?.message != null) {
                 Log.d(DEBUG_TAG, "Ответ по регистрации " + response.message)
                 val userId = response.message
+                Log.d(DEBUG_TAG, "user_id = $userId")
                 editor.putBoolean(REGISTRATION, true)
                 editor.putString(USER_ID, userId)
                 editor.commit()

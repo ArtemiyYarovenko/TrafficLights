@@ -103,6 +103,12 @@ interface ApiService {
             return call.isExecuted
         }
 
+        fun sendQrTicket2(qrTicketBody: QrTicketBody): Response<ApiResponse> {
+            val apiService = ApiService.create()
+            val call = apiService.sendTicket(qrTicketBody)
+            return call.execute()
+        }
+
         fun userRequest(user: User):Response<ApiResponse>  {
             val apiService = create()
             val call = apiService.createUser(user)
@@ -119,13 +125,13 @@ interface ApiService {
             val apiService = create()
             Log.d(DEBUG_TAG, file.exists().toString())
             Log.d(DEBUG_TAG, file.length().toString())
-            val ticketId: RequestBody = RequestBody.create(MediaType.parse("text/plain"), ticketId.toString())
-            val userId: RequestBody = RequestBody.create(MediaType.parse("text/plain"), userId)
+            val ticket_Id: RequestBody = RequestBody.create(MediaType.parse("text/plain"), ticketId.toString())
+            val user_Id: RequestBody = RequestBody.create(MediaType.parse("text/plain"), userId)
 
             val requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file)
             val body = MultipartBody.Part.createFormData("photo", file.name, requestFile)
 
-            val call = apiService.attachFile(ticketId, userId, body)
+            val call = apiService.attachFile(ticket_Id, user_Id, body)
             val response = call.execute()
             Log.d(DEBUG_TAG, response.message() + " " + response.errorBody().toString())
         }

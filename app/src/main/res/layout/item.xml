@@ -17,7 +17,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:onClick="clickOnPhotoOption"
-        android:text="photo"
+        android:text="Фото"
         app:layout_constraintBottom_toBottomOf="@+id/ButtonQr"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

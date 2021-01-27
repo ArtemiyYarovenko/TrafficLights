@@ -16,10 +16,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.isNotEmpty
 import androidx.preference.PreferenceManager
-import com.example.trafficlights.DEBUG_TAG
-import com.example.trafficlights.R
-import com.example.trafficlights.REQUEST_CAMERA_CODE_PERMISSION
-import com.example.trafficlights.USER_ID
+import com.example.trafficlights.*
 import com.example.trafficlights.`object`.QrTicketBody
 import com.example.trafficlights.api.ApiService
 import com.google.android.gms.vision.CameraSource
@@ -134,18 +131,38 @@ class QrCodeActivity : AppCompatActivity() {
                 handler.post(Runnable { cameraSource.stop() })
                 val hashCode = code.displayValue
                 Log.d(DEBUG_TAG, hashCode)
-                val data:Intent
-                data = if (hashCode != null) {
+                val data = Intent()
+                if (hashCode != null) {
                     val ticketBody = QrTicketBody(hashCode, userId, null )
-                    // проверить тут
-                    val success = ApiService.sendQrTicket(ticketBody, applicationContext)
-                    Intent().apply {
-                        putExtra("QR-code scan result", true)
+                    val response = ApiService.sendQrTicket2(ticketBody)
+                    if (response.isSuccessful){
+                        val body = response.body()
+                        val error = body?.error
+                        val message = body?.message
+                        if (error != null) {
+                            data.apply {
+                                putExtra(STATUS, false)
+                                putExtra(REASON, error)
+                            }
+                        }
+                        if (message != null) {
+                            data.apply {
+                                putExtra(STATUS, true)
+                                putExtra("ticket_id", message)
+                            }
+                        }
+                    } else {
+                        //response не успешный 404 503 и т.д
+                        data.apply {
+                            putExtra(STATUS, false)
+                            putExtra(REASON, response.errorBody().toString())
+                        }
                     }
 
                 } else {
-                    Intent().apply {
-                        putExtra("QR-code scan result", false)
+                    data.apply {
+                        putExtra(STATUS, false)
+                        putExtra(REASON, "unknown")
                     }
                 }
                 setResult(RESULT_OK, data)

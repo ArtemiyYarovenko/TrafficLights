@@ -3,7 +3,6 @@ package com.example.trafficlights.activities
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.os.StrictMode
 import android.telephony.PhoneNumberUtils
 import android.util.Log
 import android.view.View
@@ -25,23 +24,24 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // грязный хак чтобы использовать интернет в мейн потоке
-        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
-        StrictMode.setThreadPolicy(policy)
+        //val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+        //StrictMode.setThreadPolicy(policy)
 
         // генерирование уникального индентификатора пользователя (если такого нет)
         // или получение уже сгенерированного из хранилища
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        val editor = sharedPreferences.edit()
+        //val editor = sharedPreferences.edit()
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         //тестовая фигня для работы с регистрацией
-        editor.putBoolean(REGISTRATION,true).apply()
-        editor.putString(USER_ID, "TEST").apply()
+        //editor.putBoolean(REGISTRATION,true).apply()
+        //editor.putString(USER_ID, "TEST").apply()
         //editor.putBoolean(REGISTRATION, false).commit()
 
         // проверка на регистрацию
+        val reg = sharedPreferences.getBoolean(REGISTRATION, false)
         if (!sharedPreferences.getBoolean(REGISTRATION, false)) {
             registrationBox.visibility = View.VISIBLE
         } else {
@@ -56,12 +56,23 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        var  requestStatus = false
+        var requestStatus = false
+        var reason:String? = null
+        var ticket:String? = null
         if (requestCode == REQUEST_CODE_ACTIVITY_QR) {
             if (resultCode == Activity.RESULT_OK && data != null) {
                 //success
                 data.apply {
-                    requestStatus = getBooleanExtra("QR-code scan result", false)
+                    requestStatus = getBooleanExtra(STATUS, false)
+                    if (!requestStatus){
+                        reason = getStringExtra(REASON)
+                        Toast.makeText(applicationContext, reason, Toast.LENGTH_SHORT).show()
+                    } else {
+                        ticket = getStringExtra("ticket_id")
+                        Toast.makeText(applicationContext, "Ваша заявка $ticket успешно отправлена", Toast.LENGTH_SHORT).show()
+                        /* "Сюда по хорошему пихнуть что-то типа стикера с указанием токена заявки" +
+                                "и вообще чтобы выглядело красиво - солидно" */
+                    }
                 }
             } else {
                 //fail
@@ -71,18 +82,11 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == REQUEST_CODE_ACTIVITY_PHOTO) {
             if (resultCode == Activity.RESULT_OK && data != null) {
                 data.apply {
-                    requestStatus = getBooleanExtra("QR-code scan result", false)
+                    requestStatus = getBooleanExtra(STATUS, false)
                 }
             }
         }
 
-        if (requestStatus) {
-            Toast.makeText(this, "Ваша заявка успешно отправлена", Toast.LENGTH_SHORT).show()
-            /* "Сюда по хорошему пихнуть что-то типа стикера с указанием токена заявки" +
-                    "и вообще чтобы выглядело красиво - солидно" */
-        } else {
-            Toast.makeText(this, "Упс! Что-то пошло не так :(", Toast.LENGTH_SHORT).show()
-        }
     }
 
     fun clickOnQrOption(view: View) {

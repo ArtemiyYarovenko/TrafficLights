@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".activities.BasicTicketActivity">
 
-    <AutoCompleteTextView
+    <EditText
         android:id="@+id/descriptionTextView"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
@@ -17,6 +17,7 @@
         android:background="@android:drawable/editbox_background"
         android:dropDownHeight="match_parent"
         android:hint="Введите сюда краткое описание проблемы. Например: Сломанный светофор на перекрёстке Ленина и Парижской коммуны"
+        android:imeOptions="actionDone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

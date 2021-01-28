@@ -19,7 +19,7 @@ import com.example.trafficlights.notificationId
 class Notification(private val context: Context, private val token: String, private val status: String) {
 
 
-    public fun createNotification() {
+    fun createNotification() {
         var notificationChannel: NotificationChannel
 
         //intent to open our activity

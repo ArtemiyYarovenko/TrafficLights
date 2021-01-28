@@ -77,11 +77,13 @@ object Utils {
         } else {
             Log.d(DEBUG_TAG, "пытаюсь получить локацию")
             fusedLocationProviderClient
-                    .getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, null)
+                    .getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                     .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            Log.d(DEBUG_TAG, task.result.toString())
-                            location = task.result
+                        if (task.isComplete) {
+                            if (task.isSuccessful) {
+                                Log.d(DEBUG_TAG, task.result.toString())
+                                location = task.result
+                            }
                         }
                     }
         }

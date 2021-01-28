@@ -2,6 +2,7 @@ package com.example.trafficlights.background
 
 import android.content.Context
 import android.util.Log
+import androidx.preference.PreferenceManager
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
@@ -20,10 +21,13 @@ class PollingWorker (appContext: Context, workerParams: WorkerParameters):
         val callTicket = apiService.checkToken(token)
 
         val status : String
-        var lastStatus: String? = null
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val editor = sharedPreferences.edit()
+        val lastStatus = sharedPreferences.getString(token.toString(), null)
 
         Log.d(DEBUG_TAG, "Поллинг воркер начал работу")
 
+        Log.d(DEBUG_TAG, "Последний статус заявки $token = " + lastStatus.toString())
         val response = callTicket.execute()
         Log.d(DEBUG_TAG, response.message())
 
@@ -36,18 +40,19 @@ class PollingWorker (appContext: Context, workerParams: WorkerParameters):
             if(status != lastStatus){
                 when (status) {
                     RECEIVED, IN_PROGRESS ->{
-                        lastStatus = status
+                        editor.putString(token.toString(), status).apply()
                         Notification(applicationContext, token.toString(), status).createNotification()
                     }
 
                     DONE, CANCELLED -> {
-                        lastStatus = status
+                        editor.remove(token.toString()).apply()
                         cancelWork(token, status)
                     }
 
                     else -> {
                         WorkManager.getInstance(applicationContext)
                                 .cancelAllWorkByTag(token.toString())
+                        editor.remove(token.toString()).apply()
                     }
                 }
             }

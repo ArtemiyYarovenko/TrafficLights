@@ -4,7 +4,6 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
@@ -37,7 +36,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class BasicTicketActivity(): AppCompatActivity() {
+class BasicTicketActivity : AppCompatActivity() {
     var userId: String? = null
     var mCurrentPhotoPath: String? = null
     var isImage1Empty:Boolean = true
@@ -64,22 +63,25 @@ class BasicTicketActivity(): AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
-            if (resultCode == Activity.RESULT_OK && data != null) {
+            if (resultCode == Activity.RESULT_OK) {
                 //success
-                val extras: Bundle = data.extras!!
-                val image: Bitmap = extras.get("data") as Bitmap
+                //val extras: Bundle = data.extras!!
+               // val image: Bitmap = extras.get("data") as Bitmap
                 if (isImage1Empty){
-                    imageView.setImageBitmap(image)
+                    //imageView.setImageBitmap(image)
+                    imageView.setImageURI(bigPhoto1)
                     imageView.visibility = View.VISIBLE
                     isImage1Empty = false
                 } else {
                     if (isImage2Empty){
-                        imageView2.setImageBitmap(image)
+                        //imageView2.setImageBitmap(image)
+                        imageView2.setImageURI(bigPhoto2)
                         imageView2.visibility = View.VISIBLE
                         isImage2Empty = false
                     } else {
                         if (isImage3Empty){
-                            imageView3.setImageBitmap(image)
+                            //imageView3.setImageBitmap(image)
+                            imageView3.setImageURI(bigPhoto3)
                             imageView3.visibility = View.VISIBLE
                             isImage3Empty = false
                             buttonAddPhoto.visibility = View.INVISIBLE
@@ -107,6 +109,7 @@ class BasicTicketActivity(): AppCompatActivity() {
         val storageDir: File = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES
         )
+        storageDir.mkdirs()
         val image: File = File.createTempFile(
                 imageFileName,  /* префикс */
                 ".jpg",  /* расширение */

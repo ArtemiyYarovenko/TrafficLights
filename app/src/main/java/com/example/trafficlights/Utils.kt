@@ -81,7 +81,8 @@ object Utils {
                     .addOnCompleteListener { task ->
                         if (task.isComplete) {
                             if (task.isSuccessful) {
-                                Log.d(DEBUG_TAG, task.result.toString())
+                                Log.d(DEBUG_TAG, task.result.latitude.toString()+
+                                        " "+ task.result.longitude.toString())
                                 location = task.result
                             }
                         }

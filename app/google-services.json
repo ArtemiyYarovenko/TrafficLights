@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "968571580570",
+    "project_id": "trafficlights-69ca2",
+    "storage_bucket": "trafficlights-69ca2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:968571580570:android:c1f816ca813ff9af4aaf23",
+        "android_client_info": {
+          "package_name": "com.example.trafficlights"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "968571580570-62rgmqq6kd4dqgcdblsvtju3oka2btk6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEDHzLe5EFnMuCkdiJx5HepN5D03kZfjM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "968571580570-62rgmqq6kd4dqgcdblsvtju3oka2btk6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -18,6 +18,7 @@ import com.example.trafficlights.background.RegistrationWorker
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.item.*
 
+
 class MainActivity : AppCompatActivity() {
 
     lateinit var userId: String
@@ -27,17 +28,16 @@ class MainActivity : AppCompatActivity() {
         //val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         //StrictMode.setThreadPolicy(policy)
 
-        // генерирование уникального индентификатора пользователя (если такого нет)
-        // или получение уже сгенерированного из хранилища
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        //val editor = sharedPreferences.edit()
+        val editor = sharedPreferences.edit()
+
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         //тестовая фигня для работы с регистрацией
-        //editor.putBoolean(REGISTRATION,true).apply()
-        //editor.putString(USER_ID, "TEST").apply()
+        //editor.putBoolean(REGISTRATION, true).commit()
+        //editor.putString(USER_ID, "TEST").commit()
         //editor.putBoolean(REGISTRATION, false).commit()
 
         // проверка на регистрацию
@@ -68,7 +68,11 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(applicationContext, reason, Toast.LENGTH_SHORT).show()
                     } else {
                         ticket = getStringExtra("ticket_id")
-                        Toast.makeText(applicationContext, "Ваша заявка $ticket успешно отправлена", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            applicationContext,
+                            "Ваша заявка $ticket успешно отправлена",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         /* "Сюда по хорошему пихнуть что-то типа стикера с указанием токена заявки" +
                                 "и вообще чтобы выглядело красиво - солидно" */
                     }
@@ -109,43 +113,55 @@ class MainActivity : AppCompatActivity() {
         if (editPersonSurname.text.isNotEmpty()) {
             surnameIsNotEmpty = true
         } else {
-            Toast.makeText(this,
-                    "Поле фамилии пустое!",
-                    Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "Поле фамилии пустое!",
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
         //обработка поля имени
         if (editPersonName.text.isNotEmpty()) {
             nameIsNotEmpty = true
         } else {
-            Toast.makeText(this,
-                    "Поле имени пустое!",
-                    Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "Поле имени пустое!",
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
         //обработка поля отчества
         if (editPersonFatherName.text.isNotEmpty()) {
             fatherNameIsNotEmpty = true
         } else {
-            Toast.makeText(this,
-                    "Поле отчества пустое!",
-                    Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "Поле отчества пустое!",
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
         //обработка поля номера (на пустотсу и формат)
         if (editTextPhone.text.isNotEmpty()) {
             phoneNumberIsNotEmpty = true
-            phoneNumberFormatIsNotCorrect = PhoneNumberUtils.formatNumberToE164(editTextPhone.text.toString(),
-                    "RU").isNullOrEmpty()
+            phoneNumberFormatIsNotCorrect = PhoneNumberUtils.formatNumberToE164(
+                editTextPhone.text.toString(),
+                "RU"
+            ).isNullOrEmpty()
             if (phoneNumberFormatIsNotCorrect) {
-                Toast.makeText(this,
-                        "Некорректный номер телефона",
-                        Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    "Некорректный номер телефона",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         } else {
-            Toast.makeText(this,
-                    "Поле номера пустое!",
-                    Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "Поле номера пустое!",
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
         // все поля заполнены - регистрация прошла

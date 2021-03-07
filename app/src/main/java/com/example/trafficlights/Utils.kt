@@ -65,6 +65,7 @@ object Utils {
     fun getGeolocation(context: Context) {
         val fusedLocationProviderClient= FusedLocationProviderClient(context)
 
+
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION

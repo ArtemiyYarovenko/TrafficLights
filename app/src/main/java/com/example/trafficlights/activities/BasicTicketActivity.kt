@@ -5,7 +5,9 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
@@ -22,8 +24,6 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.example.trafficlights.*
 import com.example.trafficlights.Utils.hasPermissions
-import com.example.trafficlights.Utils.isInit
-import com.example.trafficlights.Utils.isNetworkAvailable
 import com.example.trafficlights.`object`.CustomTicketBody
 import com.example.trafficlights.api.ApiService
 import com.example.trafficlights.background.PollingWorker
@@ -45,6 +45,10 @@ class BasicTicketActivity : AppCompatActivity() {
     var bigPhoto1:Uri? = null
     var bigPhoto2:Uri? = null
     var bigPhoto3:Uri? = null
+    val info = Build.MANUFACTURER
+    lateinit var service : LocationManager
+    var enabled = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,8 +56,8 @@ class BasicTicketActivity : AppCompatActivity() {
         checkPermissions()
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         userId = sharedPreferences.getString(USER_ID, null)!!
-        if(ActivityCompat.checkSelfPermission(applicationContext, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-            Utils.getGeolocation(applicationContext)
+        //if(ActivityCompat.checkSelfPermission(applicationContext, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+        //    Utils.getGeolocation(applicationContext)
     }
 
 
@@ -173,88 +177,101 @@ class BasicTicketActivity : AppCompatActivity() {
 
     fun clickOnButtonSendTicket(view: View) {
         val data = Intent()
-        if(ActivityCompat.checkSelfPermission(applicationContext, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-            Utils.getGeolocation(applicationContext)
+        // check if enabled and if not send user to the GSP settings
+        // Better solution would be to display a dialog and suggesting to
+        // go to the settings
+        service = getSystemService(LOCATION_SERVICE) as LocationManager
+        enabled = service
+            .isProviderEnabled(LocationManager.GPS_PROVIDER)
+        if (!enabled) {
+            Toast.makeText(this, "Включите геолокацию в шторке или настройках телефона", Toast.LENGTH_LONG).show()
+        } else {
+            //Toast.makeText(this, "Включено!!", Toast.LENGTH_LONG).show()
+            if(ActivityCompat.checkSelfPermission(applicationContext, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+                Utils.getGeolocation(applicationContext)
 
-        if (isNetworkAvailable(applicationContext)) {
+            if (Utils.isNetworkAvailable(applicationContext)) {
 
-            val thread = Thread {
-                try {
-                    var w8:Boolean = false
-                    while (!w8 && ActivityCompat.checkSelfPermission(applicationContext, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-                        w8 = isInit()
-                    }
-                    var location: Location = Utils.location
+                val thread = Thread {
+                    try {
+                        var w8:Boolean = false
+                        while (!w8 && ActivityCompat.checkSelfPermission(applicationContext, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+                            w8 = Utils.isInit()
+                        }
+                        var location: Location = Utils.location
                         Log.d(DEBUG_TAG, location.latitude.toString())
 
 
-                    val lat: Double = location.latitude
-                    val long: Double = location.longitude
-                    val description = descriptionTextView.text.toString()
+                        val lat: Double = location.latitude
+                        val long: Double = location.longitude
+                        val description = descriptionTextView.text.toString()
 
 
-                    val customTicketBody = CustomTicketBody(userId!!, description, long, lat)
-                    val response = ApiService.sendCustomTicket(customTicketBody)
-                    if (response.isSuccessful){
-                        val body = response.body()
-                        val error = body?.error
-                        val message = body?.message
-                        if (error != null) {
-                            data.apply {
-                                putExtra(STATUS, false)
-                                putExtra(REASON, error)
+                        val customTicketBody = CustomTicketBody(userId!!, description, long, lat)
+                        val response = ApiService.sendCustomTicket(customTicketBody)
+                        if (response.isSuccessful){
+                            val body = response.body()
+                            val error = body?.error
+                            val message = body?.message
+                            if (error != null) {
+                                data.apply {
+                                    putExtra(STATUS, false)
+                                    putExtra(REASON, error)
+                                }
                             }
-                        }
-                        if (message != null) {
-                            data.apply {
-                                putExtra(STATUS, true)
-                                putExtra("ticket_id", message)
+                            if (message != null) {
+                                data.apply {
+                                    putExtra(STATUS, true)
+                                    putExtra("ticket_id", message)
 
-                                val sendTicketWithPhotoWork = OneTimeWorkRequestBuilder<UploadPhotoWorker>()
-                                        .setInputData(workDataOf(
-                                                "file1Uri" to bigPhoto1.toString(),
-                                                "file2Uri" to bigPhoto2.toString(),
-                                                "file3Uri" to bigPhoto3.toString(),
-                                                "ticket_id" to message.toInt(),
-                                                USER_ID to userId))
+                                    val sendTicketWithPhotoWork = OneTimeWorkRequestBuilder<UploadPhotoWorker>()
+                                        .setInputData(
+                                            workDataOf(
+                                            "file1Uri" to bigPhoto1.toString(),
+                                            "file2Uri" to bigPhoto2.toString(),
+                                            "file3Uri" to bigPhoto3.toString(),
+                                            "ticket_id" to message.toInt(),
+                                            USER_ID to userId)
+                                        )
                                         .build()
 
-                                WorkManager.getInstance(applicationContext)
+                                    WorkManager.getInstance(applicationContext)
                                         .enqueue(sendTicketWithPhotoWork)
-                                Log.d(DEBUG_TAG, "Запущен загрузчик")
+                                    Log.d(DEBUG_TAG, "Запущен загрузчик")
 
-                                val tokenWorkPeriodicRequest = PeriodicWorkRequestBuilder<PollingWorker>(
+                                    val tokenWorkPeriodicRequest = PeriodicWorkRequestBuilder<PollingWorker>(
                                         15, TimeUnit.MINUTES)
                                         .addTag(message)
                                         .setInputData(workDataOf("Token" to message.toInt()))
                                         .build()
 
-                                WorkManager.getInstance(applicationContext)
+                                    WorkManager.getInstance(applicationContext)
                                         .enqueue(tokenWorkPeriodicRequest)
-                                Log.d(DEBUG_TAG, "Запущен поллинг")
+                                    Log.d(DEBUG_TAG, "Запущен поллинг")
+                                }
+                            }
+                        } else {
+                            //response не успешный 404 503 и т.д
+                            data.apply {
+                                putExtra(STATUS, false)
+                                putExtra(REASON, response.errorBody().toString())
                             }
                         }
-                    } else {
-                        //response не успешный 404 503 и т.д
-                        data.apply {
-                            putExtra(STATUS, false)
-                            putExtra(REASON, response.errorBody().toString())
-                        }
+                        setResult(RESULT_OK, data)
+                        finish()
+
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
-                    setResult(RESULT_OK, data)
-                    finish()
-
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
+                thread.start()
+
+
+
+
+            } else {
+                Toast.makeText(this, "Проверьте Интернет соединение", Toast.LENGTH_LONG).show()
             }
-            thread.start()
-
-
-
-
-        } else {
-            Toast.makeText(this, "Проверьте Интернет соединение", Toast.LENGTH_LONG).show()
         }
 
     }

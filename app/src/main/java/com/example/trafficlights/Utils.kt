@@ -76,14 +76,15 @@ object Utils {
         ) {
             Toast.makeText(context, "Выдайте разрешения приложению в настройках", Toast.LENGTH_LONG).show()
         } else {
-            Log.d(DEBUG_TAG, "пытаюсь получить локацию")
+            Log.d(DEBUG_TAG, "Попытка получить локацию")
             fusedLocationProviderClient
                     .getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                     .addOnCompleteListener { task ->
                         if (task.isComplete) {
                             if (task.isSuccessful) {
-                                Log.d(DEBUG_TAG, task.result.latitude.toString()+
-                                        " "+ task.result.longitude.toString())
+                                Log.d(DEBUG_TAG, "Полученная геолокация: " +
+                                        task.result.latitude.toString() +
+                                        " " + task.result.longitude.toString())
                                 location = task.result
                             }
                         }

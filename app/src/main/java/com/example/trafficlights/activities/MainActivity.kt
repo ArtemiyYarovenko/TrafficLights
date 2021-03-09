@@ -1,6 +1,7 @@
 package com.example.trafficlights.activities
 
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import android.telephony.PhoneNumberUtils
@@ -15,6 +16,7 @@ import androidx.work.workDataOf
 import com.example.trafficlights.*
 import com.example.trafficlights.Utils.isNetworkAvailable
 import com.example.trafficlights.background.RegistrationWorker
+import com.judemanutd.autostarter.AutoStartPermissionHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.item.*
 
@@ -27,6 +29,18 @@ class MainActivity : AppCompatActivity() {
         // грязный хак чтобы использовать интернет в мейн потоке
         //val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         //StrictMode.setThreadPolicy(policy)
+
+        if (AutoStartPermissionHelper.getInstance().isAutoStartPermissionAvailable(applicationContext)){
+            val didAutoStartWorked = AutoStartPermissionHelper.getInstance().getAutoStartPermission(applicationContext)
+            Log.d(DEBUG_TAG, "Автостарт для китайцев сработал?: " +
+                    didAutoStartWorked.toString())
+            if (!didAutoStartWorked){
+                val intent1 = Intent("miui.intent.action.POWER_HIDE_MODE_APP_LIST").addCategory(Intent.CATEGORY_DEFAULT)
+                val intent2 = Intent("miui.intent.action.OP_AUTO_START").addCategory(Intent.CATEGORY_DEFAULT)
+                val intent3 =  Intent().setComponent(ComponentName("com.miui.securitycenter", "com.miui.powercenter.PowerSettings"))
+                startActivity(intent3)
+            }
+        }
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val editor = sharedPreferences.edit()

@@ -23,26 +23,31 @@ import java.util.concurrent.Executors
 
 interface ApiService {
 
-    @POST("CreateTicket/QR")
+    //Создание заявки по QR
+    @POST("CreateTicket/QRTrafficLight")
     fun sendTicket(
         @Body qrTicketBody: QrTicketBody
     ): Call<ApiResponse>
 
+    //Регистрация пользователя
     @POST("MobileUser/Create")
     fun createUser(
         @Body user: User
     ): Call<ApiResponse>
 
+    //Проверка статуса заявки
     @GET("Ticket/Check/")
     fun checkToken(
         @Query("ticket_id") token: Int
     ) : Call<ApiResponse>
 
-    @POST("CreateTicket/Custom")
+    //Создание обычной заявки
+    @POST("CreateTicket/TrafficLight")
     fun sendCustomTicket(
         @Body customTicketBody: CustomTicketBody
     ): Call<ApiResponse>
 
+    //Прикрепление фотографии к заявке
     @Multipart
     @POST("Photo/")
     fun attachFile(

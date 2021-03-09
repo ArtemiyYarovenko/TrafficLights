@@ -170,13 +170,12 @@ class QrCodeActivity : AppCompatActivity() {
                             }
                         }
                     } else {
-                        //response не успешный 404 503 и т.д
-                        data.apply {
-                            putExtra(STATUS, false)
-                            putExtra(REASON, response.errorBody().toString())
+                            //response не успешный 404 503 и т.д
+                            data.apply {
+                                putExtra(STATUS, false)
+                                putExtra(REASON, response.errorBody().toString())
+                            }
                         }
-                    }
-
                 } else {
                     data.apply {
                         putExtra(STATUS, false)

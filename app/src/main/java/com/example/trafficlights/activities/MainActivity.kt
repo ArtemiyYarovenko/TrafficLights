@@ -1,7 +1,6 @@
 package com.example.trafficlights.activities
 
 import android.app.Activity
-import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import android.os.StrictMode
@@ -20,7 +19,6 @@ import com.example.trafficlights.RecyclerView.TicketTypeAdapter
 import com.example.trafficlights.Utils.isNetworkAvailable
 import com.example.trafficlights.api.ApiService
 import com.example.trafficlights.background.RegistrationWorker
-import com.judemanutd.autostarter.AutoStartPermissionHelper
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -33,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
 
-        if (AutoStartPermissionHelper.getInstance().isAutoStartPermissionAvailable(applicationContext)){
+    /*    if (AutoStartPermissionHelper.getInstance().isAutoStartPermissionAvailable(applicationContext)){
             val didAutoStartWorked = AutoStartPermissionHelper.getInstance().getAutoStartPermission(applicationContext)
             Log.d(DEBUG_TAG, "Автостарт для китайцев сработал?: " +
                     didAutoStartWorked.toString())
@@ -43,7 +41,7 @@ class MainActivity : AppCompatActivity() {
                 val intent3 =  Intent().setComponent(ComponentName("com.miui.securitycenter", "com.miui.powercenter.PowerSettings"))
                 startActivity(intent3)
             }
-        }
+        }*/
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val editor = sharedPreferences.edit()

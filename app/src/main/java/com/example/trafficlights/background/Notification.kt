@@ -42,12 +42,12 @@ class Notification(private val context: Context, private val token: String, priv
                 .setContentText("Статус одной из ваших заявок изменился")
                 .setStyle(NotificationCompat.BigTextStyle()
                         .bigText("Ваше заявка $token была переведена в статус: $status"))
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
 
         //show notification
-        Log.d(DEBUG_TAG, "Создано уведоомление")
+        Log.d(DEBUG_TAG, "Создано уведомление")
         notificationManager.notify(notificationId, builder.build())
     }
 }

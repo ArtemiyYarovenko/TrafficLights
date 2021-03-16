@@ -3,10 +3,7 @@ package com.example.trafficlights.api
 import android.content.Context
 import android.util.Log
 import com.example.trafficlights.DEBUG_TAG
-import com.example.trafficlights.`object`.ApiResponse
-import com.example.trafficlights.`object`.CustomTicketBody
-import com.example.trafficlights.`object`.QrTicketBody
-import com.example.trafficlights.`object`.User
+import com.example.trafficlights.`object`.*
 import com.google.gson.GsonBuilder
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -41,10 +38,30 @@ interface ApiService {
         @Query("ticket_id") token: Int
     ) : Call<ApiResponse>
 
+    //Получение категорий
+    @GET("TicketType")
+    fun getTicketTypes(
+    ) : Call<List<TicketType>>
+
     //Создание обычной заявки
     @POST("CreateTicket/TrafficLight")
-    fun sendCustomTicket(
+    fun sendCustomTicketTrafficLight(
         @Body customTicketBody: CustomTicketBody
+    ): Call<ApiResponse>
+
+    @POST("CreateTicket/Graffiti")
+    fun sendCustomTicketGraffiti(
+            @Body customTicketBody: CustomTicketBody
+    ): Call<ApiResponse>
+
+    @POST("CreateTicket/Button")
+    fun sendCustomTicketButton(
+            @Body customTicketBody: CustomTicketBody
+    ): Call<ApiResponse>
+
+    @POST("CreateTicket/RoadSign")
+    fun sendCustomTicketRoadSign(
+            @Body customTicketBody: CustomTicketBody
     ): Call<ApiResponse>
 
     //Прикрепление фотографии к заявке
@@ -57,7 +74,7 @@ interface ApiService {
     ): Call<ApiResponse>
 
     companion object Ticket {
-        private const val BASE_URL = "http://84.22.135.132:5000/"
+        const val BASE_URL = "http://84.22.135.132:5000/"
 
         fun create():ApiService {
             val gson = GsonBuilder()
@@ -106,10 +123,16 @@ interface ApiService {
             return call.execute()
             }
 
-        fun sendCustomTicket(customTicketBody: CustomTicketBody): Response<ApiResponse> {
+        fun sendCustomTicket(customTicketBody: CustomTicketBody, problemId: Int): Response<ApiResponse> {
             val apiService = create()
-            val call = apiService.sendCustomTicket(customTicketBody)
-            return call.execute()
+            var call: Call<ApiResponse>? = null
+            when (problemId){
+                1 -> call = apiService.sendCustomTicketTrafficLight(customTicketBody)
+                2 -> call = apiService.sendCustomTicketGraffiti(customTicketBody)
+                3 -> call = apiService.sendCustomTicketRoadSign(customTicketBody)
+                4 -> call = apiService.sendCustomTicketButton(customTicketBody)
+            }
+            return call?.execute()!!
         }
 
         fun createUploadRequestBody(file: File, ticketId: Int, userId: String){
@@ -125,6 +148,12 @@ interface ApiService {
             val call = apiService.attachFile(ticket_Id, user_Id, body)
             val response = call.execute()
             Log.d(DEBUG_TAG, response.message() + " " + response.errorBody().toString())
+        }
+
+        fun getTicketTypes() : Response<List<TicketType>>{
+            val apiService = create()
+            val call = apiService.getTicketTypes()
+            return call.execute()
         }
     }
 }

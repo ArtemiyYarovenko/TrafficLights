@@ -4,17 +4,21 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import android.os.StrictMode
 import android.telephony.PhoneNumberUtils
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.example.trafficlights.*
+import com.example.trafficlights.RecyclerView.TicketTypeAdapter
 import com.example.trafficlights.Utils.isNetworkAvailable
+import com.example.trafficlights.api.ApiService
 import com.example.trafficlights.background.RegistrationWorker
 import com.judemanutd.autostarter.AutoStartPermissionHelper
 import kotlinx.android.synthetic.main.activity_main.*
@@ -27,8 +31,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // грязный хак чтобы использовать интернет в мейн потоке
-        //val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
-        //StrictMode.setThreadPolicy(policy)
+        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
 
         if (AutoStartPermissionHelper.getInstance().isAutoStartPermissionAvailable(applicationContext)){
             val didAutoStartWorked = AutoStartPermissionHelper.getInstance().getAutoStartPermission(applicationContext)
@@ -45,9 +49,14 @@ class MainActivity : AppCompatActivity() {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val editor = sharedPreferences.edit()
 
+        val prikol = ApiService.getTicketTypes()
+        val items = prikol.body()
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        recyclerViewTicketType.layoutManager = LinearLayoutManager(this)
+        recyclerViewTicketType.adapter = TicketTypeAdapter(this, items!!)
 
         //тестовая фигня для работы с регистрацией
         //editor.putBoolean(REGISTRATION, true).commit()
@@ -60,7 +69,7 @@ class MainActivity : AppCompatActivity() {
             registrationBox.visibility = View.VISIBLE
         } else {
 
-            itemLayout.visibility = View.VISIBLE
+            recyclerViewTicketType.visibility = View.VISIBLE
             userId = sharedPreferences.getString(USER_ID, null)!!
         }
 
@@ -107,9 +116,9 @@ class MainActivity : AppCompatActivity() {
         startActivityForResult(intent, REQUEST_CODE_ACTIVITY_QR)
     }
 
-    fun clickOnPhotoOption(view: View) {
+    fun clickOnPhotoOption(view: View, id: Int) {
         val intent  = Intent(this, BasicTicketActivity::class.java).apply {
-            putExtra(PROBLEM_ID, "Какая проблема была выбрана (id)")
+            putExtra(PROBLEM_ID, id)
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivityForResult(intent, REQUEST_CODE_ACTIVITY_PHOTO)
@@ -208,6 +217,6 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-
+    companion object
 
 }

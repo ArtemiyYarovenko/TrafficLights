@@ -45,6 +45,9 @@ class BasicTicketActivity : AppCompatActivity() {
     var bigPhoto1:Uri? = null
     var bigPhoto2:Uri? = null
     var bigPhoto3:Uri? = null
+    var problemId: Int? = null
+    var hint: String? = null
+
     val info = Build.MANUFACTURER
     lateinit var service : LocationManager
     var enabled = false
@@ -53,6 +56,13 @@ class BasicTicketActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_basic_ticket)
+        val extras = intent.extras
+        if (extras != null){
+            problemId = extras.getInt(PROBLEM_ID, -1)
+            hint = extras.getString(HINT, "Опишите Проблемы")
+        }
+        descriptionTextView.hint = hint
+
         checkPermissions()
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         userId = sharedPreferences.getString(USER_ID, null)!!
@@ -208,7 +218,7 @@ class BasicTicketActivity : AppCompatActivity() {
 
 
                         val customTicketBody = CustomTicketBody(userId!!, description, long, lat)
-                        val response = ApiService.sendCustomTicket(customTicketBody)
+                        val response = ApiService.sendCustomTicket(customTicketBody, problemId!!)
                         if (response.isSuccessful){
                             val body = response.body()
                             val error = body?.error
@@ -226,12 +236,12 @@ class BasicTicketActivity : AppCompatActivity() {
 
                                     val sendTicketWithPhotoWork = OneTimeWorkRequestBuilder<UploadPhotoWorker>()
                                         .setInputData(
-                                            workDataOf(
-                                            "file1Uri" to bigPhoto1.toString(),
-                                            "file2Uri" to bigPhoto2.toString(),
-                                            "file3Uri" to bigPhoto3.toString(),
-                                            "ticket_id" to message.toInt(),
-                                            USER_ID to userId)
+                                                workDataOf(
+                                                        "file1Uri" to bigPhoto1.toString(),
+                                                        "file2Uri" to bigPhoto2.toString(),
+                                                        "file3Uri" to bigPhoto3.toString(),
+                                                        "ticket_id" to message.toInt(),
+                                                        USER_ID to userId)
                                         )
                                         .build()
 
@@ -240,7 +250,7 @@ class BasicTicketActivity : AppCompatActivity() {
                                     Log.d(DEBUG_TAG, "Запущен загрузчик")
 
                                     val tokenWorkPeriodicRequest = PeriodicWorkRequestBuilder<PollingWorker>(
-                                        15, TimeUnit.MINUTES)
+                                            15, TimeUnit.MINUTES)
                                         .addTag(message)
                                         .setInputData(workDataOf("Token" to message.toInt()))
                                         .build()

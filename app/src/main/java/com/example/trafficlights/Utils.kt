@@ -52,6 +52,7 @@ const val REQUEST_CODE_ACTIVITY_PHOTO = 2
 const val REQUEST_IMAGE_CAPTURE = 3
 
 const val PROBLEM_ID = "PROBLEM_ID"
+const val HINT = "HINT"
 const val STATUS = "STATUS"
 const val REASON = "REASON"
 

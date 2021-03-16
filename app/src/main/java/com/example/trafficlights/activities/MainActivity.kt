@@ -22,7 +22,6 @@ import com.example.trafficlights.api.ApiService
 import com.example.trafficlights.background.RegistrationWorker
 import com.judemanutd.autostarter.AutoStartPermissionHelper
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.item.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -209,7 +208,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d(DEBUG_TAG, "Запущен запрос на регистрацию в бекграунде")
 
                 registrationBox.visibility = View.INVISIBLE
-                itemLayout.visibility = View.VISIBLE
+                recyclerViewTicketType.visibility = View.VISIBLE
             } else {
                 Toast.makeText(this, "Проверьте Интернет соединение", Toast.LENGTH_LONG).show()
             }

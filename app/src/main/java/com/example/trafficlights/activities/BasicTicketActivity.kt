@@ -7,9 +7,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.Environment
+import android.os.*
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
@@ -204,17 +202,23 @@ class BasicTicketActivity : AppCompatActivity() {
 
                 val thread = Thread {
                     try {
+                        val handler = Handler(Looper.getMainLooper())
+                        handler.post {
+                            progressBar.visibility = View.VISIBLE
+                            buttonSendTicket.visibility = View.GONE
+                        }
                         var w8:Boolean = false
                         while (!w8 && ActivityCompat.checkSelfPermission(applicationContext, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
                             w8 = Utils.isInit()
                         }
-                        var location: Location = Utils.location
+                        val location: Location = Utils.location
                         Log.d(DEBUG_TAG, location.latitude.toString())
 
 
                         val lat: Double = location.latitude
                         val long: Double = location.longitude
                         val description = descriptionTextView.text.toString()
+
 
 
                         val customTicketBody = CustomTicketBody(userId!!, description, long, lat)
@@ -267,6 +271,7 @@ class BasicTicketActivity : AppCompatActivity() {
                                 putExtra(REASON, response.errorBody().toString())
                             }
                         }
+
                         setResult(RESULT_OK, data)
                         finish()
 

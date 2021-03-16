@@ -10,6 +10,8 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.trafficlights.HINT
 import com.example.trafficlights.PROBLEM_ID
 import com.example.trafficlights.R
@@ -29,7 +31,12 @@ class TicketTypeAdapter(private val context: Context, private val values: List<T
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         //holder.icon?.setImageURI(Uri.parse("http://84.22.135.132:5000"+values[position].url))
-
+        Glide
+            .with(holder.itemView)
+            .load("http://84.22.135.132:5000"+values[position].url)
+            .thumbnail(0.5f)
+            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+            .into(holder.icon!!)
         holder.description?.text = values[holder.adapterPosition].description
 
         if (!values[holder.adapterPosition].QRable) {

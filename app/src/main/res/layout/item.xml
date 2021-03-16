@@ -27,7 +27,7 @@
         android:id="@+id/descriptionText"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
         android:text="@string/traffic_light_broken"
         app:fontFamily="sans-serif-black"
         app:layout_constraintBottom_toBottomOf="@+id/iconImage"
